@@ -1,4 +1,4 @@
-## Setup for Everyone (react tools to run)
+# Setup for Everyone (react tools to run)
 
 - <https://nodejs.org/en> (download the latest version of node.js) or run npm install
 - to make sure every thing is installed properly run npm -v
