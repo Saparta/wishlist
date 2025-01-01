@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
+	"github.com/Saparta/wishlist/wishlist/services/user-service/endpoints"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 
@@ -25,40 +25,6 @@ func setUpDb(channel chan *pgxpool.Pool) {
 	channel <- dbPool
 }
 
-type User struct {
-	ID        string    `json:"id"`
-	OAuthID   string    `json:"oauth_id"`
-	Email     string    `json:"email"`
-	Name      string    `json:"name"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-func getUsers(ctx *gin.Context, dbpool *pgxpool.Pool) {
-	rows, err := dbpool.Query(context.Background(), "SELECT id, oauth_id, email, name, created_at FROM users")
-	if err != nil {
-		log.Printf("Query error: %v\n", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
-		return
-	}
-	defer rows.Close()
-
-	// Collect the users into a slice
-	var users []User
-	for rows.Next() {
-		var user User
-		err := rows.Scan(&user.ID, &user.OAuthID, &user.Email, &user.Name, &user.CreatedAt)
-		if err != nil {
-			log.Printf("Row scan error: %v\n", err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to parse user data"})
-			return
-		}
-		users = append(users, user)
-	}
-
-	// Return the users as JSON
-	ctx.JSON(http.StatusOK, users)
-}
-
 func main() {
 	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool)
 	go setUpDb(dbChannel)
@@ -72,7 +38,7 @@ func main() {
 	var dbPool *pgxpool.Pool = <-dbChannel
 	defer dbPool.Close()
 
-	r.GET("/users", func(ctx *gin.Context) { getUsers(ctx, dbPool) })
+	r.GET("/users", func(ctx *gin.Context) { endpoints.GetUsers(ctx, dbPool) })
 
 	r.Run()
 }
