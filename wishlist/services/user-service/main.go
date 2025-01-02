@@ -13,15 +13,38 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func createUsersTable(dbpool *pgxpool.Pool) error {
+	query := `
+	CREATE TABLE IF NOT EXISTS users (
+		id UUID PRIMARY KEY,
+		oauthid UUID NOT NULL,
+		email TEXT NOT NULL,
+		name TEXT NOT NULL,
+		createdat TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+	);
+	`
+
+	_, err := dbpool.Exec(context.Background(), query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func setUpDb(channel chan *pgxpool.Pool) {
 	godotenv.Load()
 	var dsn string = os.Getenv("DSN")
 
-	// Create a connection pool
 	dbPool, err := pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
+
+	if createUsersTable(dbPool) != nil {
+		log.Fatalf("Failed to create users table: %v\n", err)
+	}
+
 	channel <- dbPool
 }
 
