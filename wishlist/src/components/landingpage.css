@@ -1,5 +1,3 @@
-/* landing page */
-
 .landing-page {
   display: flex;
   justify-content: center;
@@ -7,30 +5,53 @@
   height: 100vh;
   background: url('/public/cool-background.svg') no-repeat center center fixed;
   background-size: cover;
-  position: relative;
   color: white;
+  /* Use the global font */
 }
 
 .login-widget {
-  background: rgba(255, 255, 255, 0.8);
-  /* Soft white background */
-  border-radius: 12px;
-  padding: 40px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 30px 40px;
+  border-radius: 20px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  /* Adds drop shadow */
   text-align: center;
-  width: 300px;
-  /* Adjust the width as necessary */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 350px;
+  /* Adjust card width */
+  max-width: 90%;
+  /* Makes it responsive */
+  transition: transform 0.3s, box-shadow 0.3s;
+  /* Adds hover effect */
+}
+
+.login-widget:hover {
+  transform: scale(1.05);
+  /* Slight zoom on hover */
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+  /* Darker shadow on hover */
+  opacity: 100%;
+}
+
+.logo-container {
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 100px;
+  object-fit: contain;
+  transform: scale(3);
 }
 
 .title {
-  font-size: 2.5em;
-  margin-bottom: 10px;
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .subtitle {
-  font-size: 1.2em;
-  margin-bottom: 20px;
-  color: lightslategray;
+  font-size: 1rem;
+  margin-bottom: 25px;
+  color: #555;
 }
 
 .form-container {
@@ -38,18 +59,20 @@
 }
 
 .login-button {
-  padding: 12px 20px;
-  background-color: #4CAF50;
-  /* Green color for login button */
+  background-color: #4285f4;
   color: white;
-  font-size: 1.2em;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
 .login-button:hover {
-  background-color: #45a049;
-  /* Slightly darker green on hover */
+  background-color: #357ae8;
+}
+
+.google-icon {
+  margin-right: 8px;
 }
