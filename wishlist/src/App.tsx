@@ -1,5 +1,7 @@
 import React from 'react';
 import './App.css';
+import './styles/styles.css';
+
 
 const App: React.FC = () => {
   return (

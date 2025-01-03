@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES5", // Ensures backward compatibility
+    "module": "ESNext", // Use ES modules
+    "jsx": "react", // Important: ensures JSX is compiled correctly
+    "lib": [
+      "dom",
+      "es2015"
+    ], // Include DOM types for React
+    "allowJs": true, // Allows JavaScript files to be compiled
+    "strict": true, // Enforces stricter type checks
+    "esModuleInterop": true, // Ensures compatibility with ES modules
+    "moduleResolution": "node", // Ensures that modules are resolved like in Node.js
+  }
+}
