@@ -1,0 +1,55 @@
+/* landing page */
+
+.landing-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: url('/public/cool-background.svg') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  color: white;
+}
+
+.login-widget {
+  background: rgba(255, 255, 255, 0.8);
+  /* Soft white background */
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  width: 300px;
+  /* Adjust the width as necessary */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.title {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+  color: lightslategray;
+}
+
+.form-container {
+  margin-top: 20px;
+}
+
+.login-button {
+  padding: 12px 20px;
+  background-color: #4CAF50;
+  /* Green color for login button */
+  color: white;
+  font-size: 1.2em;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-button:hover {
+  background-color: #45a049;
+  /* Slightly darker green on hover */
+}

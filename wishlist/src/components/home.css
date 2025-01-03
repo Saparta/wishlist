@@ -1,0 +1,49 @@
+/* Home.css */
+
+.home-page {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.user-profile,
+.settings {
+  margin-left: 20px;
+}
+
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.recent-lists,
+.aside-widget,
+.carousel-widget,
+.retailers-widget {
+  background-color: #f4f4f4;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.recent-lists .list-item,
+.aside-widget .gift {
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.logout-btn {
+  background-color: #ff4b5c;
+  color: white;
+  border: none;
+  padding: 15px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 100%;
+}

@@ -1,15 +1,15 @@
 import React from 'react';
-import './App.css';
-import './styles/styles.css';
-
-
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LandingPage from './components/landingpage';
+import Home from './components/home';
 const App: React.FC = () => {
   return (
-    <div>
-      <h1>Welcome to Wishlist</h1>
-      <p>Your favorite app to manage and track wishlists!</p>
-      <button>Get Started</button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/home" element={<Home />} />
+      </Routes>
+    </Router>
   );
 };
 
