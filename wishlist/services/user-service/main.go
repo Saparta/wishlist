@@ -8,6 +8,7 @@ import (
 
 	"github.com/Saparta/wishlist/wishlist/services/user-service/endpoints"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -41,8 +42,8 @@ func setUpDb(channel chan *pgxpool.Pool) {
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
-
-	if createUsersTable(dbPool) != nil {
+	err = createUsersTable(dbPool)
+	if err != nil {
 		log.Fatalf("Failed to create users table: %v\n", err)
 	}
 
@@ -109,7 +110,6 @@ func setUpDb(channel chan *pgxpool.Pool) {
 // }
 
 // func init() {
-// 	godotenv.Load()
 // 	googleAuthConfig = &oauth2.Config{
 // 		ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 // 		ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
@@ -121,6 +121,7 @@ func setUpDb(channel chan *pgxpool.Pool) {
 
 func main() {
 	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool)
+	godotenv.Load()
 	go setUpDb(dbChannel)
 
 	var r *gin.Engine = gin.Default()
