@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+
+option go_package = "github.com/Saparta/wishlist/wishlist/services/proto";
+
+package proto;
+
+service WishlistService {
+
+  rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse) {}
+
+}
+
+message CreateWishlistRequest {
+  bytes userId = 1;
+  string title = 2;
+  string description = 3;
+  bool isPublic = 4;
+}
+
+message CreateWishlistResponse {
+
+}
