@@ -16,13 +16,11 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 		return nil, fmt.Errorf("failed to retrieve database connection from context")
 	}
 
-	wishlistID := uuid.New()
-
-	_, err := dbPool.Query(context.Background(), `INSERT INTO wishlists (id, user_id, title, description, is_public) VALUES ($1, $2, $3, $4, $5)`, wishlistID, request.UserId, request.Title, request.Description, request.IsPublic)
-
+	rows, err := dbPool.Query(context.Background(), `INSERT INTO wishlists (id, user_id, title, description, is_public) VALUES ($1, $2, $3, $4, $5)`, uuid.New(), request.UserId, request.Title, request.Description, request.IsPublic)
 	if err != nil {
 		return nil, fmt.Errorf("failed to insert wishlist into database") // Handle
 	}
+	defer rows.Close()
 
 	return &pb.CreateWishlistResponse{}, nil
 }

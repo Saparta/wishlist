@@ -19,8 +19,7 @@ func createUsersTable(dbpool *pgxpool.Pool) error {
 	);
 	`
 
-	_, err := dbpool.Exec(context.Background(), query)
-	if err != nil {
+	if _, err := dbpool.Exec(context.Background(), query); err != nil {
 		return err
 	}
 
@@ -34,8 +33,7 @@ func SetUpDb(channel chan *pgxpool.Pool) {
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
-	err = createUsersTable(dbPool)
-	if err != nil {
+	if err = createUsersTable(dbPool); err != nil {
 		log.Fatalf("Failed to create users table: %v\n", err)
 	}
 
