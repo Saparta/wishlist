@@ -12,7 +12,7 @@ service WishlistService {
 }
 
 message CreateWishlistRequest {
-  bytes userId = 1;
+  string userId = 1;
   string title = 2;
   string description = 3;
   bool isPublic = 4;
