@@ -1,16 +1,60 @@
 package main
 
 import (
+	"log"
 	"net/http"
 
-	"github.com/Saparta/wishlist/wishlist/services/user-service/db"
-	"github.com/Saparta/wishlist/wishlist/services/user-service/endpoints"
+	"github.com/Saparta/wishlist/wishlist/services/frontend-service/db"
+	"github.com/Saparta/wishlist/wishlist/services/frontend-service/endpoints"
+	pb "github.com/Saparta/wishlist/wishlist/services/frontend-service/proto"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+const (
+	serverAddr = "localhost:8081"
+)
+
+func main() {
+	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool)
+	godotenv.Load()
+	go db.SetUpDb(dbChannel)
+
+	var r *gin.Engine = gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+		})
+	})
+
+	var dbPool *pgxpool.Pool = <-dbChannel
+	defer dbPool.Close()
+
+	r.Use(cors.Default())
+	// Users database calls
+	r.GET("/users", func(ctx *gin.Context) { endpoints.GetUsers(ctx, dbPool) })
+	// r.GET("/auth/google/callback", googleCallbackHandler)
+
+	// Setup for wishlist servce gRPC calls
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient(serverAddr, opts...)
+	if err != nil {
+		log.Fatalf("fail to dial: %v", err)
+	}
+	defer conn.Close()
+	client := pb.NewWishlistServiceClient(conn)
+
+	// Wishlist service requests
+	r.POST("/wishlist", func(ctx *gin.Context) { endpoints.MakeCreateWishlist(ctx, client) })
+
+	r.Run()
+}
 
 // var googleAuthConfig = &oauth2.Config{}
 
@@ -82,25 +126,3 @@ import (
 // 		Endpoint:     google.Endpoint,
 // 	}
 // }
-
-func main() {
-	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool)
-	godotenv.Load()
-	go db.SetUpDb(dbChannel)
-
-	var r *gin.Engine = gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-
-	var dbPool *pgxpool.Pool = <-dbChannel
-	defer dbPool.Close()
-
-	r.Use(cors.Default())
-	r.GET("/users", func(ctx *gin.Context) { endpoints.GetUsers(ctx, dbPool) })
-	// r.GET("/auth/google/callback", googleCallbackHandler)
-
-	r.Run()
-}

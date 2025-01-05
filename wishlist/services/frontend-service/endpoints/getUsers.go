@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/Saparta/wishlist/wishlist/services/user-service/models"
+	"github.com/Saparta/wishlist/wishlist/services/frontend-service/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/gin-gonic/gin"
