@@ -49,8 +49,9 @@ func createTables(dbpool *pgxpool.Pool) error {
 		url TEXT,
 		price REAL,
 		is_gifted boolean,
-		FOREIGN KEY(gifted_by) REFERENCES users(id) ON DELETE SET NULL,
+		gifted_by UUID,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		FOREIGN KEY(gifted_by) REFERENCES users(id) ON DELETE SET NULL,
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS shared(
@@ -58,7 +59,7 @@ func createTables(dbpool *pgxpool.Pool) error {
 		wishlist_id UUID,
 		shared_with UUID,
 		can_edit boolean,
-		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
 		FOREIGN KEY(shared_with) REFERENCES users(id) ON DELETE CASCADE
 	);
@@ -80,7 +81,7 @@ func setUpDb(channel chan *pgxpool.Pool) {
 	}
 	err = createTables(dbPool)
 	if err != nil {
-		log.Fatalf("Failed to create users table: %v\n", err)
+		log.Fatalf("Failed to create tables: %v\n", err)
 	}
 
 	channel <- dbPool
