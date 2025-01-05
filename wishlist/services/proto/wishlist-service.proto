@@ -5,6 +5,8 @@ option go_package = "./proto";
 
 package proto;
 
+import "google/protobuf/timestamp.proto";
+
 service WishlistService {
 
   rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse) {}
@@ -19,5 +21,12 @@ message CreateWishlistRequest {
 }
 
 message CreateWishlistResponse {
-
+  string id = 1;
+  string userId = 2;
+  string title = 3;
+  string description = 4;
+  bool isPublic = 5;
+  google.protobuf.Timestamp createdAt = 6;
+  google.protobuf.Timestamp lastModified = 7;
+	google.protobuf.Timestamp latOpened = 8;
 }
