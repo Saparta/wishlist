@@ -17,7 +17,7 @@ func MakeCreateWishlist(ctx *gin.Context, client pb.WishlistServiceClient) {
 		return
 	}
 
-	_, err := client.CreateWishlist(ctx.Request.Context(),
+	resp, err := client.CreateWishlist(ctx.Request.Context(),
 		&pb.CreateWishlistRequest{
 			UserId:      newWishlist.UserID,
 			Title:       newWishlist.Title,
@@ -26,5 +26,5 @@ func MakeCreateWishlist(ctx *gin.Context, client pb.WishlistServiceClient) {
 	if err != nil {
 		log.Printf("Failed to create wishlist: %v", err)
 	}
-	ctx.JSON(http.StatusAccepted, gin.H{"message": "Request to create wishlist complete"})
+	ctx.JSON(http.StatusOK, resp)
 }
