@@ -37,5 +37,6 @@ func main() {
 	opts := []grpc.ServerOption{grpc.ChainUnaryInterceptor(DBUnaryServerInterceptor(dbPool))}
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterWishlistServiceServer(grpcServer, &endpoints.WishlistService{})
+	fmt.Println("Server is listening on port 8081. . .")
 	grpcServer.Serve(lis)
 }
