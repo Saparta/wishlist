@@ -41,6 +41,6 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 		IsPublic:     wish.IsPublic,
 		CreatedAt:    timestamppb.New(wish.CreatedAt),
 		LastModified: timestamppb.New(wish.LastModified),
-		LatOpened:    timestamppb.New(wish.LastOpened),
+		LastOpened:   timestamppb.New(wish.LastOpened),
 	}, nil
 }
