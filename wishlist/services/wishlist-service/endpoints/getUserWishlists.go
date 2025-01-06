@@ -24,20 +24,27 @@ func (w *WishlistService) getUserWishlists(ctx context.Context, request *pb.getU
 		return nil, status.Error(codes.Internal, "Failed to retrieve database connection from context")
 	}
 
-	// Execute the query
+	// get user id
+	userID := request.GetUserId()
+	if userID == "" {
+		return nil, status.Error(codes.InvalidArgument, "User ID is required")
+	}
+
+	// query the wishlists for user id
 	rows, err := dbPool.Query(ctx, `
         SELECT w.id AS wishlist_id, 
-            w.title AS wishlist_title, 
-            w.description AS wishlist_description,
-            w.is_public AS is_public,
-            i.id AS item_id,
-            i.name AS item_name,
-            i.url AS item_url,
-            i.price AS item_price,
-            i.is_gifted AS item_is_gifted,
-            i.gifted_by AS item_gifted_by
+			w.title AS wishlist_title, 
+			w.description AS wishlist_description,
+			w.is_public AS is_public,
+			i.id AS item_id,
+			i.name AS item_name,
+			i.url AS item_url,
+			i.price AS item_price ,
+			i.is_gifted AS item_is_gifted,
+			i.gifted_by AS item_gifted_by
         FROM wishlists w
-        LEFT JOIN items i ON w.id = i.wishlist_id
+		LEFT JOIN items i
+		ON w.id = i.wishlist_id
         WHERE w.user_id = $1
     `, userID)
 	if err != nil {
@@ -45,77 +52,52 @@ func (w *WishlistService) getUserWishlists(ctx context.Context, request *pb.getU
 	}
 	defer rows.Close()
 
-	var wishlists []*pb.Wishlist
-	var currentWishlist *pb.Wishlist
+	// map from a string to the completeWishlist
+	wishMap := make(map[string]completeWishlist)
 
-	// Iterate through the rows
+	// loop over wishlists and fetch each corresponding item
+	var wishes []completeWishlist
 	for rows.Next() {
-		var wishlistID, wishlistTitle, wishlistDescription string
-		var isPublic bool
-		var itemID, itemName, itemUrl, itemGiftedBy string
-		var itemPrice float64
-		var itemIsGifted bool
-
-		// Scan the row into variables
-		err := rows.Scan(
-			&wishlistID,
-			&wishlistTitle,
-			&wishlistDescription,
-			&isPublic,
-			&itemID,
-			&itemName,
-			&itemUrl,
-			&itemPrice,
-			&itemIsGifted,
-			&itemGiftedBy,
-		)
-		if err != nil {
-			return nil, status.Error(codes.Internal, "Failed to scan row: "+err.Error())
+		var wish completeWishlist
+		if err := rows.Scan(&wish.ID, &wish.Title, &wish.Description, &wish.IsPublic); err != nil {
+			return nil, status.Error(codes.Internal, "Wishlist row scan error: "+err.Error())
 		}
 
-		// If we don't have a current wishlist or it's a new wishlist, create a new one
-		if currentWishlist == nil || currentWishlist.Id != wishlistID {
-			// If we already have a current wishlist, append it to the result set
-			if currentWishlist != nil {
-				wishlists = append(wishlists, currentWishlist)
+		// // query the items of the specific wishlist
+		// itemRows, err := dbPool.Query(ctx, `
+		// 	SELECT id, name, url, price, is_gifted, gifted_by, created_at
+		// 	FROM items
+		// 	WHERE wishlist_id = $1
+		// `, wishlist.Id)
+
+		// if err != nil {
+		// 	return nil, status.Error(codes.Internal, "Failed to query wishlist items: "+err.Error())
+		// }
+		// defer itemRows.Close()
+
+		var items []models.Item
+		for itemRows.Next() {
+			var item models.Item
+			if err := rows.Scan(&item.ID, &item.Name, &item.Url, &item.Price, &item.IsGifted, &item.GiftedBy, &item.CreatedAt); err != nil {
+				return nil, status.Error(codes.Internal, "Item row scan error: "+err.Error())
 			}
 
-			// Create a new wishlist entry
-			currentWishlist = &pb.Wishlist{
-				Id:          wishlistID,
-				Title:       wishlistTitle,
-				Description: wishlistDescription,
-				IsPublic:    isPublic,
-				Items:       []*pb.WishlistItem{}, // Initialize with an empty slice
-			}
+			items = append(items, &item)
+
 		}
 
-		// Add item to the current wishlist (if itemID is not empty)
-		if itemID != "" {
-			item := &pb.WishlistItem{
-				Id:       itemID,
-				Name:     itemName,
-				Url:      itemUrl,
-				Price:    itemPrice,
-				IsGifted: itemIsGifted,
-				GiftedBy: &itemGiftedBy, // This could be nil if the value is NULL
-			}
-			currentWishlist.Items = append(currentWishlist.Items, item)
-		}
+		// append to wishlist
+		wish.Items = items
+		wishes = append(wishlists, &wishlist)
 	}
 
-	// Don't forget to append the last wishlist if it's not nil
-	if currentWishlist != nil {
-		wishlists = append(wishlists, currentWishlist)
-	}
-
-	// Check for errors during iteration
+	// Check for errors in iterating over rows
 	if err := rows.Err(); err != nil {
 		return nil, status.Error(codes.Internal, "Error occurred while reading rows: "+err.Error())
 	}
 
-	// Return the final result
+	// Return the wishlists response
 	return &pb.GetUserWishlistsResponse{
-		Wishlists: wishlists,
+		Wishes: wishes,
 	}, nil
 }
