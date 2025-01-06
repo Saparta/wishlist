@@ -42,6 +42,10 @@ func createTables(dbpool *pgxpool.Pool) error {
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
 		FOREIGN KEY(shared_with) REFERENCES users(id) ON DELETE CASCADE
 	);
+	CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlists (id, user_id);
+	CREATE INDEX IF NOT EXISTS idx_items_wishlist ON items (wishlist_id);
+	CREATE INDEX IF NOT EXISTS idx_shared_shared_with ON shared (shared_with);
+	CREATE INDEX IF NOT EXISTS idx_shared_wishlist_id ON shared (wishlist_id);
 	`
 	_, err := dbpool.Exec(context.Background(), query)
 	if err != nil {
