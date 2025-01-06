@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Saparta/wishlist/wishlist/services/frontend-service/models"
@@ -24,7 +23,8 @@ func MakeCreateWishlist(ctx *gin.Context, client pb.WishlistServiceClient) {
 			Description: newWishlist.Description,
 			IsPublic:    newWishlist.IsPublic})
 	if err != nil {
-		log.Printf("Failed to create wishlist: %v", err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
 	ctx.JSON(http.StatusOK, resp)
 }
