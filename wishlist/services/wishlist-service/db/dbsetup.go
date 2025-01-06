@@ -13,9 +13,9 @@ func createTables(dbpool *pgxpool.Pool) error {
 	CREATE TABLE IF NOT EXISTS wishlists(
 		id UUID PRIMARY KEY,
 		user_id UUID,
-		title VARCHAR(255),
+		title VARCHAR(255) NOT NULL,
 		description VARCHAR(255),
-		is_public boolean,
+		is_public boolean NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		last_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		last_opened TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -24,10 +24,10 @@ func createTables(dbpool *pgxpool.Pool) error {
 	CREATE TABLE IF NOT EXISTS items(
 		id UUID PRIMARY KEY,
 		wishlist_id UUID,
-		name VARCHAR(255),
+		name VARCHAR(255) NOT NULL,
 		url TEXT,
 		price REAL,
-		is_gifted boolean,
+		is_gifted boolean NOT NULL,
 		gifted_by UUID,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(gifted_by) REFERENCES users(id) ON DELETE SET NULL,
@@ -37,11 +37,15 @@ func createTables(dbpool *pgxpool.Pool) error {
 		id UUID PRIMARY KEY,
 		wishlist_id UUID,
 		shared_with UUID,
-		can_edit boolean,
+		can_edit boolean NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
 		FOREIGN KEY(shared_with) REFERENCES users(id) ON DELETE CASCADE
 	);
+	CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlists (id, user_id);
+	CREATE INDEX IF NOT EXISTS idx_items_wishlist ON items (wishlist_id);
+	CREATE INDEX IF NOT EXISTS idx_shared_shared_with ON shared (shared_with);
+	CREATE INDEX IF NOT EXISTS idx_shared_wishlist_id ON shared (wishlist_id);
 	`
 	_, err := dbpool.Exec(context.Background(), query)
 	if err != nil {
