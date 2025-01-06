@@ -13,7 +13,7 @@ func createUsersTable(dbpool *pgxpool.Pool) error {
 	CREATE TABLE IF NOT EXISTS users (
 		id UUID PRIMARY KEY,
 		oauth_id UUID NOT NULL,
-		email TEXT NOT NULL,
+		email TEXT NOT NULL UNIQUE,
 		name TEXT NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 	);
