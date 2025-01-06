@@ -10,14 +10,19 @@ import "google/protobuf/timestamp.proto";
 service WishlistService {
 
   rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse) {}
-  rpc getUserWishlists(getUserWishlistsRequest) returns (getUserWishlistsResponse) {}
+
+  rpc getUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse) {}
+
+  rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse) {}
+
+  rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse) {}
 }
 
-message getUserWishlistsRequest {
+message GetUserWishlistsRequest {
   string userId = 1;
 }
 
-message getUserWishlistsResponse {
+message GetUserWishlistsResponse {
   repeated Wishlist wishlists = 1;
 }
 
@@ -41,10 +46,6 @@ message WishlistItem {
     bool is_gifted = 5;
     string gifted_by = 6;
     google.protobuf.Timestamp created_at = 7;
-  rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse) {}
-
-  rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse) {}
-
 }
 
 message CreateWishlistRequest {
@@ -63,35 +64,6 @@ message CreateWishlistResponse {
   google.protobuf.Timestamp createdAt = 6;
   google.protobuf.Timestamp lastModified = 7;
 	google.protobuf.Timestamp lastOpened = 9;
-}
-
-message ClearWishlistItemsRequest {
-  string userId = 1;
-  string wishlistId = 2;
-}
-
-message ClearWishlistItemsResponse {}
-
-message AddWishlistItemRequest {
-  string userId = 1;
-  string wishlistId = 2;
-  string name = 3;
-  string url = 4;
-  float price = 5;
-  bool isGifted = 6;
-  string giftedBy = 7;
-}
-
-message AddWishlistItemResponse {
-  string id = 1;
-  string userId = 2;
-  string wishlistId = 3;
-  string name = 4;
-  string url = 5;
-  float price = 6;
-  bool isGifted = 7;
-  string giftedBy = 8;
-  google.protobuf.Timestamp createdAt = 9;
 }
 
 message ClearWishlistItemsRequest {
