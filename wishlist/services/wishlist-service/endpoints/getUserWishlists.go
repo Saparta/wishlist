@@ -8,25 +8,24 @@ import (
 
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Get every wishlist that a specific user has and all the items within them.
 func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetUserWishlistsRequest) (*pb.GetUserWishlistsResponse, error) {
 	dbPool, ok := ctx.Value(shared.DBSession).(*pgxpool.Pool)
 	if !ok {
 		return nil, status.Error(codes.Internal, "Failed to retrieve database connection from context")
 	}
 
-	// get user id
 	userID := request.GetUserId()
 	if userID == "" {
 		return nil, status.Error(codes.InvalidArgument, "User ID is required")
 	}
 
-	// query the wishlists for user id
 	rows, err := dbPool.Query(ctx, `
-        SELECT w.id AS wishlist_id, 
+    SELECT
+			w.id AS wishlist_id, 
 			w.title AS wishlist_title, 
 			w.description AS wishlist_description,
 			w.is_public AS is_public,
@@ -36,16 +35,61 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 			i.price AS item_price ,
 			i.is_gifted AS item_is_gifted,
 			i.gifted_by AS item_gifted_by
-        FROM wishlists w
+    FROM wishlists w
 		LEFT JOIN items i
 		ON w.id = i.wishlist_id
-        WHERE w.user_id = $1
+    WHERE w.user_id = $1
     `, userID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to query wishlists: "+err.Error())
 	}
-	defer rows.Close()
+
+	wishMap := make(map[string]*pb.Wishlist)
+	var wishlistId, title, description, name, url, giftedBy, itemId *string
+	var price *float32
+	var isPublic, isGifted *bool
+	_, err = pgx.ForEachRow(rows, []any{&wishlistId, &title, &description, &isPublic, &itemId, &name, &url, &price, &isGifted, &giftedBy}, func() error {
+		val, found := wishMap[*wishlistId]
+		var allItems []*pb.WishlistItem
+
+		if itemId != nil {
+			allItems = append(allItems,
+				&pb.WishlistItem{
+					Id:       *itemId,
+					Name:     *name,
+					Url:      *url,
+					Price:    *price,
+					IsGifted: *isGifted,
+					GiftedBy: *giftedBy})
+		}
+
+		if !found {
+			wishMap[*wishlistId] = &pb.Wishlist{
+				Id:          *wishlistId,
+				UserId:      userID,
+				Title:       *title,
+				Description: *description,
+				IsPublic:    *isPublic,
+
+				Items: allItems,
+			}
+		} else {
+			val.Items = append(val.Items, allItems...)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, "Failed to process rows")
+	}
+
+	var wishlists []*pb.Wishlist
+	for _, value := range wishMap {
+		wishlists = append(wishlists, value)
+	}
 
 	// Return the wishlists response
-	return &pb.GetUserWishlistsResponse{}, nil
+	return &pb.GetUserWishlistsResponse{
+		Wishlists: wishlists,
+	}, nil
 }
