@@ -2,7 +2,6 @@ package endpoints
 
 import (
 	"context"
-	"time"
 
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -11,27 +10,6 @@ import (
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
-
-type wishlist struct {
-	ID           string
-	UserID       string
-	Title        string
-	Description  string
-	IsPublic     bool
-	CreatedAt    time.Time
-	LastModified time.Time
-	LastOpened   time.Time
-}
-
-type item struct {
-	ID        string
-	Name      string
-	URL       string
-	price     float
-	IsGifted  bool
-	GiftedBy  string
-	CreatedAt time.Time
-}
 
 // Get every wishlist that a specific user has and all the items within them.
 func (w *WishlistService) getUserWishlists(ctx context.Context, request *pb.getUserWishlistsRequest) (*pb.CreateWishlistResponse, error) {
@@ -75,9 +53,9 @@ func (w *WishlistService) getUserWishlists(ctx context.Context, request *pb.getU
 		}
 		defer itemRows.Close()
 
-		var items item
-		for itemRows.next() {
-			var item {}*WishListItem
+		var items []item
+		for itemRows.Next() {
+			var item item
 			if err := rows.Scan(&items.Id, &items.Name, &item.URL, &item.Price, &item.IsGifted, &item.GiftedBy, &item.CreatedAt); err != nil {
 				return nil, status.Error(codes.Internal, "Item row scan error: "+err.Error())
 			}
