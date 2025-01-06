@@ -1,0 +1,43 @@
+/* wishlistModal.css */
+.wishlist-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  max-width: 500px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none;
+  /* Initially hidden */
+}
+
+.modal-content p {
+  margin-left: 20px !important;
+  font-size: 16px !important;
+  color: #333 !important;
+}
+
+.wishlist-modal.open {
+  display: block;
+  /* Make sure it's visible when the 'open' class is added */
+}
+
+.wishlist-modal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  cursor: pointer;
+}
+
+.wishlist-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+}
