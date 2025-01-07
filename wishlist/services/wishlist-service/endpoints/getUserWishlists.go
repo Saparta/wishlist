@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
@@ -46,14 +46,15 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
     WHERE w.user_id = $1
     `, userID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "Failed to query wishlists: "+err.Error())
+		return nil, status.Errorf(codes.Internal, "Failed to query wishlists: %v", err.Error())
 	}
 
-	wishMap := make(map[string]*pb.Wishlist)
 	var wishlistId, title, description, name, url, giftedBy, itemId *string
 	var price *float32
 	var isPublic, isGifted *bool
 	var lastOpened, lastModified, createdAt *time.Time
+	
+	wishMap := make(map[string]*pb.Wishlist)
 	_, err = pgx.ForEachRow(rows, []any{&wishlistId, &title, &description, &isPublic, &lastOpened, &lastModified, &itemId, &name, &url, &price, &isGifted, &giftedBy, &createdAt}, func() error {
 		val, found := wishMap[*wishlistId]
 		var allItems []*pb.WishlistItem
@@ -78,6 +79,7 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 				Title:        *title,
 				Description:  *description,
 				IsPublic:     *isPublic,
+				CanEdit:      true,
 				LastOpened:   timestamppb.New(*lastOpened),
 				LastModified: timestamppb.New(*lastModified),
 				Items:        allItems,

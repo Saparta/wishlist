@@ -35,10 +35,12 @@ func createTables(dbpool *pgxpool.Pool) error {
 	);
 	CREATE TABLE IF NOT EXISTS shared(
 		id UUID PRIMARY KEY,
-		wishlist_id UUID,
-		shared_with UUID,
+		wishlist_id UUID NOT NULL,
+		shared_with UUID NOT NULL,
 		can_edit boolean NOT NULL,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		last_opened TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		last_modified TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
 		FOREIGN KEY(shared_with) REFERENCES users(id) ON DELETE CASCADE
 	);

@@ -16,6 +16,16 @@ service WishlistService {
   rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse) {}
 
   rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse) {}
+
+  rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse) {}
+}
+
+message GetWishlistsSharedWithUserRequest {
+  string userId = 1;
+}
+
+message GetWishlistsSharedWithUserResponse {
+  repeated Wishlist wishlists = 1;
 }
 
 message GetUserWishlistsRequest {
@@ -36,16 +46,18 @@ message Wishlist {
   google.protobuf.Timestamp lastModified = 7;
 	google.protobuf.Timestamp lastOpened = 8;
   repeated WishlistItem items = 9;
+  bool canEdit = 10;
 }
 
 message WishlistItem {
+    reserved 5, 6, 7;
     string id = 1;
     string name = 2;
     string url = 3;
     float price = 4;
-    bool is_gifted = 5;
-    string gifted_by = 6;
-    google.protobuf.Timestamp created_at = 7;
+    bool isGifted = 8;
+    string giftedBy = 9;
+    google.protobuf.Timestamp createdAt = 10;
 }
 
 message CreateWishlistRequest {
