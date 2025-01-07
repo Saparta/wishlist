@@ -3,13 +3,12 @@ package endpoints
 import (
 	"context"
 
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/models"
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -21,7 +20,7 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 	}
 
 	rows, err := dbPool.Query(ctx,
-		`INSERT INTO wishlists (id, user_id, title, description, is_public) VALUES ($1, $2, $3, $4, $5) RETURNING id, user_id, title, description, is_public, created_at, last_modified, last_opened`, uuid.New(), request.UserId, request.Title, request.Description, request.IsPublic)
+		`INSERT INTO wishlists (id, user_id, title, description, is_public) VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id, user_id, title, description, is_public, created_at, last_modified, last_opened`, request.UserId, request.Title, request.Description, request.IsPublic)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

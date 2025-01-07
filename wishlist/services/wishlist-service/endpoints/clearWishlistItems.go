@@ -6,8 +6,8 @@ import (
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
 	"github.com/jackc/pgx/v5/pgxpool"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (w *WishlistService) ClearWishlistItems(ctx context.Context, request *pb.ClearWishlistItemsRequest) (*pb.ClearWishlistItemsResponse, error) {

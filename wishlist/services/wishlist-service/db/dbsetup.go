@@ -11,7 +11,7 @@ import (
 func createTables(dbpool *pgxpool.Pool) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS wishlists(
-		id UUID PRIMARY KEY,
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		user_id UUID,
 		title VARCHAR(255) NOT NULL,
 		description VARCHAR(255),
@@ -22,7 +22,7 @@ func createTables(dbpool *pgxpool.Pool) error {
 		FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS items(
-		id UUID PRIMARY KEY,
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		wishlist_id UUID,
 		name VARCHAR(255) NOT NULL,
 		url TEXT,
@@ -34,7 +34,7 @@ func createTables(dbpool *pgxpool.Pool) error {
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE
 	);
 	CREATE TABLE IF NOT EXISTS shared(
-		id UUID PRIMARY KEY,
+		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		wishlist_id UUID NOT NULL,
 		shared_with UUID NOT NULL,
 		can_edit boolean NOT NULL,
