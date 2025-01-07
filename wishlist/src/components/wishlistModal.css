@@ -4,14 +4,13 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
+  width: 90%;
   max-width: 500px;
-  background-color: white;
+  background: white;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
-  display: none;
-  /* Initially hidden */
 }
 
 .modal-content p {
@@ -22,22 +21,54 @@
 
 .wishlist-modal.open {
   display: block;
+  animation: fadeIn 0.5s ease-in-out;
+
   /* Make sure it's visible when the 'open' class is added */
 }
 
-.wishlist-modal .close-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.close-button {
+  font-size: 2.5rem;
   cursor: pointer;
+  color: #333;
+  transition: color 0.3s;
 }
 
-.wishlist-modal-overlay {
+.close-button:hover {
+  color: red;
+}
+
+.wishlist-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 1px solid #eee;
+}
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.wishlist-modal.close {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
 }

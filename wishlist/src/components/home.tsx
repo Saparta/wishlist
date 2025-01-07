@@ -1,84 +1,75 @@
 import React, { useState } from "react";
 import "./home.css";
-import { FaUserCircle, FaCog } from "react-icons/fa";
-import { RiAccountCircle2Line, RiCloseLine, RiUserLine, RiUserSettingsLine } from "react-icons/ri";
-import UserModal from './userModal';
+import { RiUserLine, RiUserSettingsLine } from "react-icons/ri";
+import UserModal from "./userModal";
 import "./userModal.css";
-import "./wishlistModal.css"
-import { mockWishlists, mocksharedWishlist } from "../mocks/mockData";
-import WishlistModal from './wishlistModal';
-
-
-interface Wishlist {
-  id: number;
-  title: string;
-  items: string[];
-  progress: number;
-  description: string;
-}
+import "./wishlistModal.css";
+import {
+  mockSharedWishlists,
+  mockWishlists,
+  Wishlist,
+} from "../mocks/mockData";
+import WishlistModal from "./wishlistModal";
 
 const Home: React.FC = () => {
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [isWishlistModalOpen, setIsWishlistModalOpen] = useState(false);
+  const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(
+    null
+  );
+  const [activeTab, setActiveTab] = useState("my-wishlists");
+
   const handleLogout = () => {
     window.location.href = "/";
   };
 
   const handleUserClick = () => {
     console.log("User icon clicked!");
-    // Add functionality here
+    setIsUserModalOpen(true);
   };
 
-  const handleSettingsClick = () => {
-    console.log("Settings icon clicked!");
-    // Add functionality here
+  const handleCardClick = (wishlist: Wishlist) => {
+    console.log("Opening wishlist modal for:", wishlist.title);
+    setSelectedWishlist(wishlist);
+    setIsWishlistModalOpen(true);
   };
 
-  const [activeTab, setactiveTab] = useState("my-wishlists");
-  // Child tabs disabled
-  // const [activeChildTab, setActiveChildTab] = useState("friends");
+  const closeModal = () => {
+    console.log("Closing wishlist modal.");
+    setIsWishlistModalOpen(false);
+    setSelectedWishlist(null);
+  };
 
-  // const renderChildTabContent = () => {
-  //   if (activeTab === "my-wishlists") {
-  //     switch (activeChildTab) {
-  //       case "friends":
-  //         return <div className="tab-content">Friends (Members) Content</div>;
-  //       case "recent-gifts":
-  //         return <div className="tab-content">Recent Gifts Content</div>;
-  //       case "shop-now":
-  //         return <div className="tab-content">Shop Now Content</div>;
-  //       case "unreceived-gifts":
-  //         return <div className="tab-content">Unreceived Gifts Content</div>;
-  //       case "add-to-wishlist":
-  //         return <div className="tab-content">Add More to Recent Wishlist Content</div>;
-  //       default:
-  //         return <div className="tab-content">Select a tab to view content</div>;
-  //     }
-  //   }
+  const calculateProgress = (items: Wishlist["items"]) => {
+    if (!items || items.length === 0) return 0;
+    const giftedCount = items.filter((item) => item.is_gifted).length;
+    return Math.round((giftedCount / items.length) * 100);
+  };
 
-  //   if (activeTab === "shared-wishlists") {
-  //     return <div className="tab-content">Shared Wishlists Content</div>;
-  //   }
-
-  //   return <div className="tab-content">No content available</div>;
-  // };
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const renderWishlistCards = (wishlists: Wishlist[]) => {
-    return (
-      <div className="wishlist-grid">
-        {wishlists.map((wishlist: Wishlist) => (
+  const renderWishlistCards = (wishlists: Wishlist[]) => (
+    <div className="wishlist-grid">
+      {wishlists.map((wishlist) => {
+        const progress = calculateProgress(wishlist.items);
+        return (
           <div
             key={wishlist.id}
             className="wishlist-card"
-            onClick={() => handleCardClick(wishlist)} // Add the click handler here
+            onClick={() => handleCardClick(wishlist)}
           >
             <h3>{wishlist.title}</h3>
             <ul>
-              {wishlist.items.map((item: string, index: number) => (
-                <li key={index}>
+              {wishlist.items.map((item) => (
+                <li key={item.id}>
                   <label>
-                    <input type="checkbox" />
-                    {item}
+                    <input
+                      type="checkbox"
+                      checked={item.is_gifted}
+                      readOnly
+                      style={{
+                        accentColor: item.is_gifted ? "green" : "gray",
+                      }}
+                    />
+                    {item.name} - ${item.price.toFixed(2)}
                   </label>
                 </li>
               ))}
@@ -86,32 +77,18 @@ const Home: React.FC = () => {
             <div className="progress-bar">
               <div
                 className="progress"
-                style={{ width: `${wishlist.progress}%` }}
+                style={{
+                  width: `${progress}%`,
+                  backgroundColor: progress === 100 ? "green" : "orange",
+                }}
               ></div>
             </div>
-            <p>{wishlist.progress}% progress</p>
+            <p>{progress}% progress</p>
           </div>
-        ))}
-      </div>
-    );
-  };
-
-
-  const [selectedWishlist, setSelectedWishlist] = useState<Wishlist | null>(null);
-
-
-
-  const handleCardClick = (wishlist: Wishlist) => {
-    console.log(wishlist);
-    setSelectedWishlist(wishlist);
-    setIsModalOpen(true);
-  };
-
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedWishlist(null);
-  };
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="home-page">
@@ -121,13 +98,13 @@ const Home: React.FC = () => {
           <div className="title-header">Wishlist</div>
         </div>
         <div className="actions">
-          <div>
-            <button className="icon-button" onClick={() => setIsModalOpen(true)}>
-              <RiUserLine />
-            </button>
-            {isModalOpen && <UserModal onClose={() => setIsModalOpen(false)} />}
-          </div>
-          <button className="icon-button" onClick={handleSettingsClick}>
+          <button className="icon-button" onClick={handleUserClick}>
+            <RiUserLine />
+          </button>
+          {isUserModalOpen && (
+            <UserModal onClose={() => setIsUserModalOpen(false)} />
+          )}
+          <button className="icon-button" onClick={() => {}}>
             <RiUserSettingsLine />
           </button>
           <button className="icon-button" onClick={handleLogout}>
@@ -140,79 +117,37 @@ const Home: React.FC = () => {
         <div className="tabs-system">
           <div className="parent-tabs">
             <button
-              className={`tab-button ${activeTab === "my-wishlists" ? "active" : ""}`}
-              onClick={() => setactiveTab("my-wishlists")}
+              className={`tab-button ${
+                activeTab === "my-wishlists" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("my-wishlists")}
             >
               My Wishlists
             </button>
             <button
-              className={`tab-button ${activeTab === "shared-wishlists" ? "active" : ""}`}
-              onClick={() => setactiveTab("shared-wishlists")}
+              className={`tab-button ${
+                activeTab === "shared-wishlists" ? "active" : ""
+              }`}
+              onClick={() => setActiveTab("shared-wishlists")}
             >
               Shared Wishlists
             </button>
           </div>
 
-          {/* Child tabs  disabled for now */}
-          {/* {activeParentTab === "my-wishlists" && (
-            <div className="child-tabs">
-              <button
-                className={`tab-button ${activeChildTab === "friends" ? "active" : ""}`}
-                onClick={() => setActiveChildTab("friends")}
-              >
-                Friends
-              </button>
-              <button
-                className={`tab-button ${activeChildTab === "recent-gifts" ? "active" : ""}`}
-                onClick={() => setActiveChildTab("recent-gifts")}
-              >
-                Recent Gifts
-              </button>
-              <button
-                className={`tab-button ${activeChildTab === "shop-now" ? "active" : ""}`}
-                onClick={() => setActiveChildTab("shop-now")}
-              >
-                Shop Now
-              </button>
-              <button
-                className={`tab-button ${activeChildTab === "unreceived-gifts" ? "active" : ""}`}
-                onClick={() => setActiveChildTab("unreceived-gifts")}
-              >
-                Unreceived Gifts
-              </button>
-              <button
-                className={`tab-button ${activeChildTab === "add-to-wishlist" ? "active" : ""}`}
-                onClick={() => setActiveChildTab("add-to-wishlist")}
-              >
-                Add More to Wishlist
-              </button>
-            </div>
-          )} */}
-          {/* <div className="content-area">{renderChildTabContent()}</div> */}
-
-          {/* My Wishlists */}
           {activeTab === "my-wishlists" && renderWishlistCards(mockWishlists)}
-
-          {/* Shared Wishlists */}
-          {activeTab === "shared-wishlists" && renderWishlistCards(mocksharedWishlist)}
-
-
+          {activeTab === "shared-wishlists" &&
+            renderWishlistCards(mockSharedWishlists)}
         </div>
       </main>
 
       {/* Wishlist Modal */}
-      {isModalOpen && selectedWishlist && (
+      {isWishlistModalOpen && selectedWishlist && (
         <WishlistModal wishlist={selectedWishlist} onClose={closeModal} />
       )}
 
-      <footer className="footer">
-        © 2025 Wishlist, All Rights Reserved.
-      </footer>
+      <footer className="footer">© 2025 Wishlist, All Rights Reserved.</footer>
     </div>
-
   );
-
-
 };
 
 export default Home;
