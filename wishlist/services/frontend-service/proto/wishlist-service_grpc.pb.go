@@ -20,7 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	WishlistService_CreateWishlist_FullMethodName     = "/proto.WishlistService/CreateWishlist"
-	WishlistService_GetUserWishlists_FullMethodName   = "/proto.WishlistService/getUserWishlists"
+	WishlistService_GetUserWishlists_FullMethodName   = "/proto.WishlistService/GetUserWishlists"
 	WishlistService_AddWishlistItem_FullMethodName    = "/proto.WishlistService/AddWishlistItem"
 	WishlistService_ClearWishlistItems_FullMethodName = "/proto.WishlistService/ClearWishlistItems"
 )
@@ -218,7 +218,7 @@ var WishlistService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WishlistService_CreateWishlist_Handler,
 		},
 		{
-			MethodName: "getUserWishlists",
+			MethodName: "GetUserWishlists",
 			Handler:    _WishlistService_GetUserWishlists_Handler,
 		},
 		{

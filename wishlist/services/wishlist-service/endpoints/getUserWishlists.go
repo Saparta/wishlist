@@ -38,7 +38,7 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 			i.url AS item_url,
 			i.price AS item_price ,
 			i.is_gifted AS item_is_gifted,
-			i.gifted_by AS item_gifted_by
+			i.gifted_by AS item_gifted_by,
 			i.created_at AS item_created_at
     FROM wishlists w
 		LEFT JOIN items i

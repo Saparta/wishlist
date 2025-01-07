@@ -11,7 +11,7 @@ service WishlistService {
 
   rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse) {}
 
-  rpc getUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse) {}
+  rpc GetUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse) {}
 
   rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse) {}
 
