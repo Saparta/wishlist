@@ -82,7 +82,7 @@ export const mockWishlists: Wishlist[] = [
         name: "Shoes",
         url: "http://example.com/shoes",
         price: 59.99,
-        is_gifted: false,
+        is_gifted: true,
         gifted_by: "",
       },
     ],
