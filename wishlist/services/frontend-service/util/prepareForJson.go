@@ -18,7 +18,7 @@ func PrepareItemForJson(item *pb.WishlistItem) models.Item {
 }
 
 func PrepareItemsForJson(items []*pb.WishlistItem) []models.Item {
-	var transformedItems []models.Item
+	var transformedItems []models.Item = make([]models.Item, 0)
 	for _, item := range items {
 		transformedItems = append(transformedItems, PrepareItemForJson(item))
 	}
