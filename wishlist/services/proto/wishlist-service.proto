@@ -9,16 +9,25 @@ import "google/protobuf/timestamp.proto";
 
 service WishlistService {
 
-  rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse) {}
+  rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse);
 
-  rpc GetUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse) {}
+  rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse);
 
-  rpc AddWishlistItem(AddWishlistItemRequest) returns (AddWishlistItemResponse) {}
+  rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse);
 
-  rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse) {}
+  rpc GetUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse);
 
-  rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse) {}
+  rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse);
+
+  rpc MarkItemGifted(MarkItemGiftedRequest) returns (MarkItemGiftedResponse);
 }
+
+message MarkItemGiftedRequest{
+  optional string itemId = 1;
+  optional string userId = 2;
+}
+
+message MarkItemGiftedResponse{}
 
 message GetWishlistsSharedWithUserRequest {
   optional string userId = 1;
@@ -50,7 +59,7 @@ message Wishlist {
 }
 
 message WishlistItem {
-    reserved 5, 6, 7;
+    reserved 5 to 7;
     optional string id = 1;
     optional string name = 2;
     optional string url = 3;

@@ -5,23 +5,27 @@ import (
 	pb "github.com/Saparta/wishlist/wishlist/services/frontend-service/proto"
 )
 
-func PrepareItemsForJSON(items []*pb.WishlistItem) []models.Item {
+func PrepareItemForJson(item *pb.WishlistItem) models.Item {
+	return models.Item{
+		ID:        *item.Id,
+		Name:      *item.Name,
+		Url:       *item.Url,
+		Price:     *item.Price,
+		IsGifted:  *item.IsGifted,
+		GiftedBy:  *item.GiftedBy,
+		CreatedAt: item.CreatedAt.AsTime(),
+	}
+}
+
+func PrepareItemsForJson(items []*pb.WishlistItem) []models.Item {
 	var transformedItems []models.Item
 	for _, item := range items {
-		transformedItems = append(transformedItems, models.Item{
-			ID:        *item.Id,
-			Name:      *item.Name,
-			Url:       *item.Url,
-			Price:     *item.Price,
-			IsGifted:  *item.IsGifted,
-			GiftedBy:  *item.GiftedBy,
-			CreatedAt: item.CreatedAt.AsTime(),
-		})
+		transformedItems = append(transformedItems, PrepareItemForJson(item))
 	}
 	return transformedItems
 }
 
-func PrepareWishlistsForJSON(respWishlists []*pb.Wishlist) []models.Wishlist {
+func PrepareWishlistsForJson(respWishlists []*pb.Wishlist) []models.Wishlist {
 	var wishlists []models.Wishlist
 	for _, wishlist := range respWishlists {
 		wishlists = append(wishlists, models.Wishlist{
@@ -34,7 +38,7 @@ func PrepareWishlistsForJSON(respWishlists []*pb.Wishlist) []models.Wishlist {
 			CreatedAt:    wishlist.CreatedAt.AsTime(),
 			LastModified: wishlist.LastModified.AsTime(),
 			LastOpened:   wishlist.LastModified.AsTime(),
-			Items:        PrepareItemsForJSON(wishlist.Items),
+			Items:        PrepareItemsForJson(wishlist.Items),
 		})
 	}
 	return wishlists

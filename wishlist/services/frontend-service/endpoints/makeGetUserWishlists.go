@@ -16,5 +16,5 @@ func MakeGetUserWishlists(ctx *gin.Context, client pb.WishlistServiceClient) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, util.PrepareWishlistsForJSON(resp.Wishlists))
+	ctx.JSON(http.StatusOK, util.PrepareWishlistsForJson(resp.Wishlists))
 }
