@@ -27,7 +27,10 @@ message MarkItemGiftedRequest{
   optional string userId = 2;
 }
 
-message MarkItemGiftedResponse{}
+message MarkItemGiftedResponse{
+  reserved 1;
+  optional bool success = 2;
+}
 
 message GetWishlistsSharedWithUserRequest {
   optional string userId = 1;
