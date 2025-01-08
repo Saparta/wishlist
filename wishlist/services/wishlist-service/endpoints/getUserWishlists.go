@@ -53,7 +53,7 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 	var price *float32
 	var isPublic, isGifted *bool
 	var lastOpened, lastModified, createdAt *time.Time
-	
+
 	wishMap := make(map[string]*pb.Wishlist)
 	_, err = pgx.ForEachRow(rows, []any{&wishlistId, &title, &description, &isPublic, &lastOpened, &lastModified, &itemId, &name, &url, &price, &isGifted, &giftedBy, &createdAt}, func() error {
 		val, found := wishMap[*wishlistId]
@@ -62,24 +62,24 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 		if itemId != nil {
 			allItems = append(allItems,
 				&pb.WishlistItem{
-					Id:        *itemId,
-					Name:      *name,
-					Url:       *url,
-					Price:     *price,
-					IsGifted:  *isGifted,
-					GiftedBy:  *giftedBy,
+					Id:        itemId,
+					Name:      name,
+					Url:       url,
+					Price:     price,
+					IsGifted:  isGifted,
+					GiftedBy:  giftedBy,
 					CreatedAt: timestamppb.New(*createdAt),
 				})
 		}
 
 		if !found {
 			wishMap[*wishlistId] = &pb.Wishlist{
-				Id:           *wishlistId,
-				UserId:       userID,
-				Title:        *title,
-				Description:  *description,
-				IsPublic:     *isPublic,
-				CanEdit:      true,
+				Id:           wishlistId,
+				UserId:       &userID,
+				Title:        title,
+				Description:  description,
+				IsPublic:     isPublic,
+				CanEdit:      func() *bool { b := true; return &b }(), // This is just a pointer to true
 				LastOpened:   timestamppb.New(*lastOpened),
 				LastModified: timestamppb.New(*lastModified),
 				Items:        allItems,

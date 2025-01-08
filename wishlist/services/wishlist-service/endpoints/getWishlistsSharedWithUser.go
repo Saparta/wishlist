@@ -71,24 +71,24 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 			if itemId != nil {
 				allItems = append(allItems,
 					&pb.WishlistItem{
-						Id:        *itemId,
-						Name:      *name,
-						Url:       *url,
-						Price:     *price,
-						IsGifted:  *isGifted,
-						GiftedBy:  *giftedBy,
+						Id:        itemId,
+						Name:      name,
+						Url:       url,
+						Price:     price,
+						IsGifted:  isGifted,
+						GiftedBy:  giftedBy,
 						CreatedAt: timestamppb.New(*createdAt),
 					})
 			}
 
 			if !found {
 				wishMap[*wishlistId] = &pb.Wishlist{
-					Id:           *wishlistId,
-					UserId:       userID,
-					Title:        *title,
-					Description:  *description,
-					IsPublic:     *isPublic,
-					CanEdit:      true,
+					Id:           wishlistId,
+					UserId:       &userID,
+					Title:        title,
+					Description:  description,
+					IsPublic:     isPublic,
+					CanEdit:      func() *bool { b := true; return &b }(), // This is just a pointer to True
 					LastOpened:   timestamppb.New(*lastOpened),
 					LastModified: timestamppb.New(*lastModified),
 					Items:        allItems,

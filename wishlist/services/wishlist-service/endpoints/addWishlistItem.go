@@ -47,13 +47,13 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
 	}
 
 	return &pb.AddWishlistItemResponse{
-		Id:         item.ID,
-		WishlistId: item.WishlistID,
-		Name:       item.Name,
-		Url:        item.Url,
-		Price:      item.Price,
-		IsGifted:   item.IsGifted,
-		GiftedBy:   item.GiftedBy,
+		Id:         &item.ID,
+		WishlistId: &item.WishlistID,
+		Name:       &item.Name,
+		Url:        &item.Url,
+		Price:      &item.Price,
+		IsGifted:   &item.IsGifted,
+		GiftedBy:   &item.GiftedBy,
 		CreatedAt:  timestamppb.New(item.CreatedAt),
 	}, nil
 }

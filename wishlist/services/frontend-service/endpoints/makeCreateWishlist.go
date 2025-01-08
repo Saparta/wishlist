@@ -18,10 +18,10 @@ func MakeCreateWishlist(ctx *gin.Context, client pb.WishlistServiceClient) {
 
 	resp, err := client.CreateWishlist(ctx.Request.Context(),
 		&pb.CreateWishlistRequest{
-			UserId:      newWishlist.UserID,
-			Title:       newWishlist.Title,
-			Description: newWishlist.Description,
-			IsPublic:    newWishlist.IsPublic})
+			UserId:      &newWishlist.UserID,
+			Title:       &newWishlist.Title,
+			Description: &newWishlist.Description,
+			IsPublic:    &newWishlist.IsPublic})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

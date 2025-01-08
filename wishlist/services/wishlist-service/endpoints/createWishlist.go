@@ -34,10 +34,10 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 	}
 
 	return &pb.CreateWishlistResponse{
-		Id:           wish.ID,
-		UserId:       wish.UserID,
-		Description:  wish.Description,
-		IsPublic:     wish.IsPublic,
+		Id:           &wish.ID,
+		UserId:       &wish.UserID,
+		Description:  &wish.Description,
+		IsPublic:     &wish.IsPublic,
 		CreatedAt:    timestamppb.New(wish.CreatedAt),
 		LastModified: timestamppb.New(wish.LastModified),
 		LastOpened:   timestamppb.New(wish.LastOpened),

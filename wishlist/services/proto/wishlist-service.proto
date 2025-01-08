@@ -21,7 +21,7 @@ service WishlistService {
 }
 
 message GetWishlistsSharedWithUserRequest {
-  string userId = 1;
+  optional string userId = 1;
 }
 
 message GetWishlistsSharedWithUserResponse {
@@ -29,7 +29,7 @@ message GetWishlistsSharedWithUserResponse {
 }
 
 message GetUserWishlistsRequest {
-  string userId = 1;
+  optional string userId = 1;
 }
 
 message GetUserWishlistsResponse {
@@ -37,72 +37,72 @@ message GetUserWishlistsResponse {
 }
 
 message Wishlist {
-  string id = 1;
-  string userId = 2;
-  string title = 3;
-  string description = 4;
-  bool isPublic = 5;
-  google.protobuf.Timestamp createdAt = 6;
-  google.protobuf.Timestamp lastModified = 7;
-	google.protobuf.Timestamp lastOpened = 8;
+  optional string id = 1;
+  optional string userId = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional bool isPublic = 5;
+  optional bool canEdit = 10;
+  optional google.protobuf.Timestamp createdAt = 6;
+  optional google.protobuf.Timestamp lastModified = 7;
+	optional google.protobuf.Timestamp lastOpened = 8;
   repeated WishlistItem items = 9;
-  bool canEdit = 10;
 }
 
 message WishlistItem {
     reserved 5, 6, 7;
-    string id = 1;
-    string name = 2;
-    string url = 3;
-    float price = 4;
-    bool isGifted = 8;
-    string giftedBy = 9;
-    google.protobuf.Timestamp createdAt = 10;
+    optional string id = 1;
+    optional string name = 2;
+    optional string url = 3;
+    optional float price = 4;
+    optional bool isGifted = 8;
+    optional string giftedBy = 9;
+    optional google.protobuf.Timestamp createdAt = 10;
 }
 
 message CreateWishlistRequest {
-  string userId = 1;
-  string title = 2;
-  string description = 3;
-  bool isPublic = 4;
+  optional string userId = 1;
+  optional string title = 2;
+  optional string description = 3;
+  optional bool isPublic = 4;
 }
 
 message CreateWishlistResponse {
-  string id = 1;
-  string userId = 2;
-  string title = 3;
-  string description = 4;
-  bool isPublic = 5;
-  google.protobuf.Timestamp createdAt = 6;
-  google.protobuf.Timestamp lastModified = 7;
-	google.protobuf.Timestamp lastOpened = 9;
+  optional string id = 1;
+  optional string userId = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional bool isPublic = 5;
+  optional google.protobuf.Timestamp createdAt = 6;
+  optional google.protobuf.Timestamp lastModified = 7;
+	optional google.protobuf.Timestamp lastOpened = 9;
 }
 
 message ClearWishlistItemsRequest {
-  string userId = 1;
-  string wishlistId = 2;
+  optional string userId = 1;
+  optional string wishlistId = 2;
 }
 
 message ClearWishlistItemsResponse {}
 
 message AddWishlistItemRequest {
-  string userId = 1;
-  string wishlistId = 2;
-  string name = 3;
-  string url = 4;
-  float price = 5;
-  bool isGifted = 6;
-  string giftedBy = 7;
+  optional string userId = 1;
+  optional string wishlistId = 2;
+  optional string name = 3;
+  optional string url = 4;
+  optional float price = 5;
+  optional bool isGifted = 6;
+  optional string giftedBy = 7;
 }
 
 message AddWishlistItemResponse {
-  string id = 1;
-  string userId = 2;
-  string wishlistId = 3;
-  string name = 4;
-  string url = 5;
-  float price = 6;
-  bool isGifted = 7;
-  string giftedBy = 8;
-  google.protobuf.Timestamp createdAt = 9;
+  optional string id = 1;
+  optional string userId = 2;
+  optional string wishlistId = 3;
+  optional string name = 4;
+  optional string url = 5;
+  optional float price = 6;
+  optional bool isGifted = 7;
+  optional string giftedBy = 8;
+  optional google.protobuf.Timestamp createdAt = 9;
 }
