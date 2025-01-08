@@ -25,6 +25,7 @@ const (
 	WishlistService_GetUserWishlists_FullMethodName           = "/proto.WishlistService/GetUserWishlists"
 	WishlistService_GetWishlistsSharedWithUser_FullMethodName = "/proto.WishlistService/GetWishlistsSharedWithUser"
 	WishlistService_MarkItemGifted_FullMethodName             = "/proto.WishlistService/MarkItemGifted"
+	WishlistService_UnmarkItemGifted_FullMethodName           = "/proto.WishlistService/UnmarkItemGifted"
 )
 
 // WishlistServiceClient is the client API for WishlistService service.
@@ -37,6 +38,7 @@ type WishlistServiceClient interface {
 	GetUserWishlists(ctx context.Context, in *GetUserWishlistsRequest, opts ...grpc.CallOption) (*GetUserWishlistsResponse, error)
 	GetWishlistsSharedWithUser(ctx context.Context, in *GetWishlistsSharedWithUserRequest, opts ...grpc.CallOption) (*GetWishlistsSharedWithUserResponse, error)
 	MarkItemGifted(ctx context.Context, in *MarkItemGiftedRequest, opts ...grpc.CallOption) (*MarkItemGiftedResponse, error)
+	UnmarkItemGifted(ctx context.Context, in *UnmarkItemGiftedRequest, opts ...grpc.CallOption) (*UnmarkItemGiftedResponse, error)
 }
 
 type wishlistServiceClient struct {
@@ -107,6 +109,16 @@ func (c *wishlistServiceClient) MarkItemGifted(ctx context.Context, in *MarkItem
 	return out, nil
 }
 
+func (c *wishlistServiceClient) UnmarkItemGifted(ctx context.Context, in *UnmarkItemGiftedRequest, opts ...grpc.CallOption) (*UnmarkItemGiftedResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UnmarkItemGiftedResponse)
+	err := c.cc.Invoke(ctx, WishlistService_UnmarkItemGifted_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WishlistServiceServer is the server API for WishlistService service.
 // All implementations must embed UnimplementedWishlistServiceServer
 // for forward compatibility.
@@ -117,6 +129,7 @@ type WishlistServiceServer interface {
 	GetUserWishlists(context.Context, *GetUserWishlistsRequest) (*GetUserWishlistsResponse, error)
 	GetWishlistsSharedWithUser(context.Context, *GetWishlistsSharedWithUserRequest) (*GetWishlistsSharedWithUserResponse, error)
 	MarkItemGifted(context.Context, *MarkItemGiftedRequest) (*MarkItemGiftedResponse, error)
+	UnmarkItemGifted(context.Context, *UnmarkItemGiftedRequest) (*UnmarkItemGiftedResponse, error)
 	mustEmbedUnimplementedWishlistServiceServer()
 }
 
@@ -144,6 +157,9 @@ func (UnimplementedWishlistServiceServer) GetWishlistsSharedWithUser(context.Con
 }
 func (UnimplementedWishlistServiceServer) MarkItemGifted(context.Context, *MarkItemGiftedRequest) (*MarkItemGiftedResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MarkItemGifted not implemented")
+}
+func (UnimplementedWishlistServiceServer) UnmarkItemGifted(context.Context, *UnmarkItemGiftedRequest) (*UnmarkItemGiftedResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UnmarkItemGifted not implemented")
 }
 func (UnimplementedWishlistServiceServer) mustEmbedUnimplementedWishlistServiceServer() {}
 func (UnimplementedWishlistServiceServer) testEmbeddedByValue()                         {}
@@ -274,6 +290,24 @@ func _WishlistService_MarkItemGifted_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WishlistService_UnmarkItemGifted_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UnmarkItemGiftedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WishlistServiceServer).UnmarkItemGifted(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WishlistService_UnmarkItemGifted_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WishlistServiceServer).UnmarkItemGifted(ctx, req.(*UnmarkItemGiftedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WishlistService_ServiceDesc is the grpc.ServiceDesc for WishlistService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -304,6 +338,10 @@ var WishlistService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MarkItemGifted",
 			Handler:    _WishlistService_MarkItemGifted_Handler,
+		},
+		{
+			MethodName: "UnmarkItemGifted",
+			Handler:    _WishlistService_UnmarkItemGifted_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

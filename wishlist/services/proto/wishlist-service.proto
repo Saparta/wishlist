@@ -20,7 +20,16 @@ service WishlistService {
   rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse);
 
   rpc MarkItemGifted(MarkItemGiftedRequest) returns (MarkItemGiftedResponse);
+
+  rpc UnmarkItemGifted(UnmarkItemGiftedRequest) returns (UnmarkItemGiftedResponse);
 }
+
+message UnmarkItemGiftedRequest {
+  optional string userId = 1;
+  optional string itemId = 2;
+}
+
+message UnmarkItemGiftedResponse {}
 
 message MarkItemGiftedRequest{
   optional string itemId = 1;
