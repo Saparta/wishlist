@@ -53,7 +53,7 @@ func main() {
 	// Wishlist service requests
 	r.POST("/wishlist", func(ctx *gin.Context) { endpoints.MakeCreateWishlist(ctx, client) })
 	r.POST("/wishlist/item", func(ctx *gin.Context) { endpoints.MakeAddWishlistItem(ctx, client) })
-	r.GET("/wishlist/:userId", func(ctx *gin.Context) { endpoints.MakeGetUserWishlists(ctx, client) })
+	r.GET("/wishlist/:userId", func(ctx *gin.Context) { endpoints.MakeGetAllUserWishlists(ctx, client) })
 
 	r.Run()
 }

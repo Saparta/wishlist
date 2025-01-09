@@ -8,10 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func MakeGetUserWishlists(ctx *gin.Context, client pb.WishlistServiceClient) {
+func MakeGetAllUserWishlists(ctx *gin.Context, client pb.WishlistServiceClient) {
 	id := ctx.Param("userId")
-	resp, err := client.GetUserWishlists(ctx.Request.Context(),
-		&pb.GetUserWishlistsRequest{UserId: &id})
+	resp, err := client.GetAllUserWishlists(ctx.Request.Context(),
+		&pb.GetAllUserWishlistsRequest{UserId: &id})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
