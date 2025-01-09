@@ -23,7 +23,7 @@ const (
 	WishlistService_AddWishlistItem_FullMethodName            = "/proto.WishlistService/AddWishlistItem"
 	WishlistService_ClearWishlistItems_FullMethodName         = "/proto.WishlistService/ClearWishlistItems"
 	WishlistService_GetUserWishlist_FullMethodName            = "/proto.WishlistService/GetUserWishlist"
-	WishlistService_GetUserWishlists_FullMethodName           = "/proto.WishlistService/GetUserWishlists"
+	WishlistService_GetAllUserWishlists_FullMethodName        = "/proto.WishlistService/GetAllUserWishlists"
 	WishlistService_GetWishlistsSharedWithUser_FullMethodName = "/proto.WishlistService/GetWishlistsSharedWithUser"
 	WishlistService_ModifyWishlist_FullMethodName             = "/proto.WishlistService/ModifyWishlist"
 	WishlistService_ModifyWishlistItem_FullMethodName         = "/proto.WishlistService/ModifyWishlistItem"
@@ -37,7 +37,7 @@ type WishlistServiceClient interface {
 	AddWishlistItem(ctx context.Context, in *AddWishlistItemRequest, opts ...grpc.CallOption) (*AddWishlistItemResponse, error)
 	ClearWishlistItems(ctx context.Context, in *ClearWishlistItemsRequest, opts ...grpc.CallOption) (*ClearWishlistItemsResponse, error)
 	GetUserWishlist(ctx context.Context, in *GetUserWishlistRequest, opts ...grpc.CallOption) (*GetUserWishlistResponse, error)
-	GetUserWishlists(ctx context.Context, in *GetUserWishlistsRequest, opts ...grpc.CallOption) (*GetUserWishlistsResponse, error)
+	GetAllUserWishlists(ctx context.Context, in *GetAllUserWishlistsRequest, opts ...grpc.CallOption) (*GetAllUserWishlistsResponse, error)
 	GetWishlistsSharedWithUser(ctx context.Context, in *GetWishlistsSharedWithUserRequest, opts ...grpc.CallOption) (*GetWishlistsSharedWithUserResponse, error)
 	ModifyWishlist(ctx context.Context, in *ModifyWishlistRequest, opts ...grpc.CallOption) (*ModifyWishlistResponse, error)
 	ModifyWishlistItem(ctx context.Context, in *ModifyWishlistItemRequest, opts ...grpc.CallOption) (*ModifyWishlistItemResponse, error)
@@ -91,10 +91,10 @@ func (c *wishlistServiceClient) GetUserWishlist(ctx context.Context, in *GetUser
 	return out, nil
 }
 
-func (c *wishlistServiceClient) GetUserWishlists(ctx context.Context, in *GetUserWishlistsRequest, opts ...grpc.CallOption) (*GetUserWishlistsResponse, error) {
+func (c *wishlistServiceClient) GetAllUserWishlists(ctx context.Context, in *GetAllUserWishlistsRequest, opts ...grpc.CallOption) (*GetAllUserWishlistsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUserWishlistsResponse)
-	err := c.cc.Invoke(ctx, WishlistService_GetUserWishlists_FullMethodName, in, out, cOpts...)
+	out := new(GetAllUserWishlistsResponse)
+	err := c.cc.Invoke(ctx, WishlistService_GetAllUserWishlists_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ type WishlistServiceServer interface {
 	AddWishlistItem(context.Context, *AddWishlistItemRequest) (*AddWishlistItemResponse, error)
 	ClearWishlistItems(context.Context, *ClearWishlistItemsRequest) (*ClearWishlistItemsResponse, error)
 	GetUserWishlist(context.Context, *GetUserWishlistRequest) (*GetUserWishlistResponse, error)
-	GetUserWishlists(context.Context, *GetUserWishlistsRequest) (*GetUserWishlistsResponse, error)
+	GetAllUserWishlists(context.Context, *GetAllUserWishlistsRequest) (*GetAllUserWishlistsResponse, error)
 	GetWishlistsSharedWithUser(context.Context, *GetWishlistsSharedWithUserRequest) (*GetWishlistsSharedWithUserResponse, error)
 	ModifyWishlist(context.Context, *ModifyWishlistRequest) (*ModifyWishlistResponse, error)
 	ModifyWishlistItem(context.Context, *ModifyWishlistItemRequest) (*ModifyWishlistItemResponse, error)
@@ -165,8 +165,8 @@ func (UnimplementedWishlistServiceServer) ClearWishlistItems(context.Context, *C
 func (UnimplementedWishlistServiceServer) GetUserWishlist(context.Context, *GetUserWishlistRequest) (*GetUserWishlistResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserWishlist not implemented")
 }
-func (UnimplementedWishlistServiceServer) GetUserWishlists(context.Context, *GetUserWishlistsRequest) (*GetUserWishlistsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserWishlists not implemented")
+func (UnimplementedWishlistServiceServer) GetAllUserWishlists(context.Context, *GetAllUserWishlistsRequest) (*GetAllUserWishlistsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAllUserWishlists not implemented")
 }
 func (UnimplementedWishlistServiceServer) GetWishlistsSharedWithUser(context.Context, *GetWishlistsSharedWithUserRequest) (*GetWishlistsSharedWithUserResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWishlistsSharedWithUser not implemented")
@@ -270,20 +270,20 @@ func _WishlistService_GetUserWishlist_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
-func _WishlistService_GetUserWishlists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserWishlistsRequest)
+func _WishlistService_GetAllUserWishlists_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAllUserWishlistsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WishlistServiceServer).GetUserWishlists(ctx, in)
+		return srv.(WishlistServiceServer).GetAllUserWishlists(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: WishlistService_GetUserWishlists_FullMethodName,
+		FullMethod: WishlistService_GetAllUserWishlists_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WishlistServiceServer).GetUserWishlists(ctx, req.(*GetUserWishlistsRequest))
+		return srv.(WishlistServiceServer).GetAllUserWishlists(ctx, req.(*GetAllUserWishlistsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -366,8 +366,8 @@ var WishlistService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _WishlistService_GetUserWishlist_Handler,
 		},
 		{
-			MethodName: "GetUserWishlists",
-			Handler:    _WishlistService_GetUserWishlists_Handler,
+			MethodName: "GetAllUserWishlists",
+			Handler:    _WishlistService_GetAllUserWishlists_Handler,
 		},
 		{
 			MethodName: "GetWishlistsSharedWithUser",

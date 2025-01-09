@@ -14,7 +14,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetUserWishlistsRequest) (*pb.GetUserWishlistsResponse, error) {
+func (w *WishlistService) GetAllUserWishlists(ctx context.Context, request *pb.GetAllUserWishlistsRequest) (*pb.GetAllUserWishlistsResponse, error) {
 	dbPool, ok := ctx.Value(shared.DBSession).(*pgxpool.Pool)
 	if !ok {
 		return nil, status.Error(codes.Internal, "Failed to retrieve database connection from context")
@@ -96,7 +96,7 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 	}
 
 	// Return the wishlists response
-	return &pb.GetUserWishlistsResponse{
+	return &pb.GetAllUserWishlistsResponse{
 		Wishlists: wishlists,
 	}, nil
 }
