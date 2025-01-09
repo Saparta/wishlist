@@ -23,7 +23,7 @@ func DBUnaryServerInterceptor(session *pgxpool.Pool) grpc.UnaryServerInterceptor
 }
 
 func main() {
-	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool)
+	var dbChannel chan *pgxpool.Pool = make(chan *pgxpool.Pool, 1)
 	godotenv.Load()
 	go db.SetUpDb(dbChannel)
 
@@ -33,7 +33,6 @@ func main() {
 	}
 
 	var dbPool *pgxpool.Pool = <-dbChannel
-	close(dbChannel)
 	defer dbPool.Close()
 	opts := []grpc.ServerOption{grpc.ChainUnaryInterceptor(DBUnaryServerInterceptor(dbPool))}
 	grpcServer := grpc.NewServer(opts...)
