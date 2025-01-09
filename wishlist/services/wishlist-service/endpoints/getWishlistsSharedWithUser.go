@@ -71,13 +71,14 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 			if itemId != nil {
 				allItems = append(allItems,
 					&pb.WishlistItem{
-						Id:        itemId,
-						Name:      name,
-						Url:       url,
-						Price:     price,
-						IsGifted:  isGifted,
-						GiftedBy:  giftedBy,
-						CreatedAt: timestamppb.New(*createdAt),
+						Id:         itemId,
+						Name:       name,
+						Url:        url,
+						Price:      price,
+						IsGifted:   isGifted,
+						GiftedBy:   giftedBy,
+						CreatedAt:  timestamppb.New(*createdAt),
+						WishlistId: wishlistId,
 					})
 			}
 

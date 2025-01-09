@@ -48,7 +48,54 @@ func createTables(dbpool *pgxpool.Pool) error {
 	CREATE INDEX IF NOT EXISTS idx_items_wishlist ON items (wishlist_id);
 	CREATE INDEX IF NOT EXISTS idx_shared_shared_with ON shared (shared_with);
 	CREATE INDEX IF NOT EXISTS idx_shared_wishlist_id ON shared (wishlist_id);
-	`
+	CREATE OR REPLACE FUNCTION update_wishlist_last_modified()
+	RETURNS TRIGGER AS $$
+	BEGIN
+    UPDATE wishlists
+    SET last_modified = CURRENT_TIMESTAMP
+    WHERE id = NEW.wishlist_id;
+    
+    RETURN NEW;
+	END;
+	$$ LANGUAGE plpgsql;
+	CREATE OR REPLACE FUNCTION update_wishlist_last_modified_self()
+	RETURNS TRIGGER AS $$
+	BEGIN
+    NEW.last_modified := CURRENT_TIMESTAMP;
+    RETURN NEW; -- Return the updated row to finalize the change
+	END;
+	$$ LANGUAGE plpgsql;
+	DO $$
+	BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_trigger
+        WHERE tgname = 'trigger_update_wishlist_last_modified'
+    ) THEN
+        CREATE TRIGGER trigger_update_wishlist_last_modified
+        AFTER UPDATE ON items
+        FOR EACH ROW
+        WHEN (OLD.* IS DISTINCT FROM NEW.*)
+        EXECUTE FUNCTION update_wishlist_last_modified();
+    END IF;
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_trigger
+        WHERE tgname = 'trigger_update_last_modified_self'
+    ) THEN
+        CREATE TRIGGER trigger_update_last_modified_self
+        BEFORE UPDATE ON wishlists
+        FOR EACH ROW
+        WHEN (
+            OLD.title IS DISTINCT FROM NEW.title OR
+            OLD.description IS DISTINCT FROM NEW.description OR
+            OLD.is_public IS DISTINCT FROM NEW.is_public
+        )
+        EXECUTE FUNCTION update_wishlist_last_modified_self();
+    END IF;
+END;
+$$;
+`
 	_, err := dbpool.Exec(context.Background(), query)
 	if err != nil {
 		return err

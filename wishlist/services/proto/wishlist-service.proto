@@ -7,6 +7,7 @@ package proto;
 
 import "google/protobuf/timestamp.proto";
 
+
 service WishlistService {
 
   rpc CreateWishlist(CreateWishlistRequest) returns (CreateWishlistResponse);
@@ -19,26 +20,46 @@ service WishlistService {
 
   rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse);
 
-  rpc MarkItemGifted(MarkItemGiftedRequest) returns (MarkItemGiftedResponse);
+  rpc ModifyWishlist(ModifyWishlistRequest) returns (ModifyWishlistResponse);
 
-  rpc UnmarkItemGifted(UnmarkItemGiftedRequest) returns (UnmarkItemGiftedResponse);
+  rpc ModifyWishlistItem(ModifyWishlistItemRequest) returns (ModifyWishlistItemResponse);
 }
 
-message UnmarkItemGiftedRequest {
-  optional string userId = 1;
-  optional string itemId = 2;
+message ModifyWishlistItemRequest {
+  optional string id = 1; // Needed to determine wishlist and access rights
+  optional string wishlistId = 9; // Needed to determine wishlist and access rights
+  optional string userId = 2; // Needed to determine wishlist and access rights
+  optional string name = 3; // Editable Fields below
+  optional string url = 4;
+  optional float price = 5;
+  // null = no change, False = mark ungifted, True = mark gifted
+  optional bool giftedStatus = 6;
 }
 
-message UnmarkItemGiftedResponse {}
+message ModifyWishlistItemResponse {
+  optional WishlistItem item = 1;
+}
 
-message MarkItemGiftedRequest{
-  optional string itemId = 1;
+
+message ModifyWishlistRequest {
+  optional string id = 1; // Needed to determine wishlist and access rights
+  optional string userId = 2; // Needed to determine wishlist and access rights
+  optional string title = 3; // Editable fields below
+  optional string description = 4;
+  optional bool isPublic = 5;
+}
+
+// New status of wishlist
+message ModifyWishlistResponse {
+  optional string id = 1;
   optional string userId = 2;
-}
-
-message MarkItemGiftedResponse{
-  reserved 1;
-  optional bool success = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional bool isPublic = 5;
+  optional bool canEdit = 6;
+  optional google.protobuf.Timestamp createdAt = 7;
+  optional google.protobuf.Timestamp lastModified = 8;
+	optional google.protobuf.Timestamp lastOpened = 9;
 }
 
 message GetWishlistsSharedWithUserRequest {
@@ -55,30 +76,6 @@ message GetUserWishlistsRequest {
 
 message GetUserWishlistsResponse {
   repeated Wishlist wishlists = 1;
-}
-
-message Wishlist {
-  optional string id = 1;
-  optional string userId = 2;
-  optional string title = 3;
-  optional string description = 4;
-  optional bool isPublic = 5;
-  optional bool canEdit = 10;
-  optional google.protobuf.Timestamp createdAt = 6;
-  optional google.protobuf.Timestamp lastModified = 7;
-	optional google.protobuf.Timestamp lastOpened = 8;
-  repeated WishlistItem items = 9;
-}
-
-message WishlistItem {
-    reserved 5 to 7;
-    optional string id = 1;
-    optional string name = 2;
-    optional string url = 3;
-    optional float price = 4;
-    optional bool isGifted = 8;
-    optional string giftedBy = 9;
-    optional google.protobuf.Timestamp createdAt = 10;
 }
 
 message CreateWishlistRequest {
@@ -126,4 +123,38 @@ message AddWishlistItemResponse {
   optional bool isGifted = 7;
   optional string giftedBy = 8;
   optional google.protobuf.Timestamp createdAt = 9;
+}
+
+message ItemMarkingRequest {
+  optional string userId = 1;
+  optional string itemId = 2;
+}
+
+message ItemMarkingResponse {
+  bool success = 1;
+}
+
+message Wishlist {
+  optional string id = 1;
+  optional string userId = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional bool isPublic = 5;
+  optional bool canEdit = 10;
+  optional google.protobuf.Timestamp createdAt = 6;
+  optional google.protobuf.Timestamp lastModified = 7;
+	optional google.protobuf.Timestamp lastOpened = 8;
+  repeated WishlistItem items = 9;
+}
+
+message WishlistItem {
+    reserved 5 to 7;
+    optional string id = 1;
+    optional string name = 2;
+    optional string url = 3;
+    optional float price = 4;
+    optional bool isGifted = 8;
+    optional string giftedBy = 9;
+    optional google.protobuf.Timestamp createdAt = 10;
+    optional string wishlistId = 11;
 }

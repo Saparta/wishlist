@@ -33,6 +33,7 @@ func main() {
 	}
 
 	var dbPool *pgxpool.Pool = <-dbChannel
+	close(dbChannel)
 	defer dbPool.Close()
 	opts := []grpc.ServerOption{grpc.ChainUnaryInterceptor(DBUnaryServerInterceptor(dbPool))}
 	grpcServer := grpc.NewServer(opts...)
