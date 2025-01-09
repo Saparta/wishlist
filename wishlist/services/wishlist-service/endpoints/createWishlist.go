@@ -2,13 +2,14 @@ package endpoints
 
 import (
 	"context"
+	"time"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/models"
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -26,20 +27,21 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 	}
 	defer rows.Close()
 
-	var wish models.Wishlist
-	rows.Next()
-	err = rows.Scan(&wish.ID, &wish.UserID, &wish.Title, &wish.Description, &wish.IsPublic, &wish.CreatedAt, &wish.LastModified, &wish.LastOpened)
+	wish, err := pgx.CollectOneRow(rows, func(row pgx.CollectableRow) (*pb.CreateWishlistResponse, error) {
+		var res pb.CreateWishlistResponse
+		var createdAt, lastModified, lastOpened time.Time
+		err := row.Scan(&res.Id, &res.UserId, &res.Title, &res.Description, &res.IsPublic, &createdAt, &lastModified, &lastOpened)
+		if err != nil {
+			return nil, status.Error(codes.Internal, err.Error())
+		}
+		res.CreatedAt = timestamppb.New(createdAt)
+		res.LastModified = timestamppb.New(lastModified)
+		res.LastOpened = timestamppb.New(lastOpened)
+		return &res, nil
+	})
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &pb.CreateWishlistResponse{
-		Id:           &wish.ID,
-		UserId:       &wish.UserID,
-		Description:  &wish.Description,
-		IsPublic:     &wish.IsPublic,
-		CreatedAt:    timestamppb.New(wish.CreatedAt),
-		LastModified: timestamppb.New(wish.LastModified),
-		LastOpened:   timestamppb.New(wish.LastOpened),
-	}, nil
+	return wish, nil
 }

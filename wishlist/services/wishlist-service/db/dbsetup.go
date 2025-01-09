@@ -24,10 +24,10 @@ func createTables(dbpool *pgxpool.Pool) error {
 	CREATE TABLE IF NOT EXISTS items(
 		id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 		wishlist_id UUID,
-		name VARCHAR(255) NOT NULL,
-		url TEXT,
-		price REAL,
-		is_gifted boolean NOT NULL,
+		name VARCHAR(255) NOT NULL DEFAULT '',
+		url TEXT NOT NULL DEFAULT '',
+		price REAL NOT NULL DEFAULT 0,
+		is_gifted boolean NOT NULL DEFAULT FALSE,
 		gifted_by UUID,
 		created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 		FOREIGN KEY(gifted_by) REFERENCES users(id) ON DELETE SET NULL,
@@ -44,10 +44,13 @@ func createTables(dbpool *pgxpool.Pool) error {
 		FOREIGN KEY(wishlist_id) REFERENCES wishlists(id) ON DELETE CASCADE,
 		FOREIGN KEY(shared_with) REFERENCES users(id) ON DELETE CASCADE
 	);
+	CREATE INDEX IF NOT EXISTS idx_wishlists_id ON wishlists(id);
+	CREATE INDEX IF NOT EXISTS idx_wishlists_user_id ON wishlists(user_id);
 	CREATE INDEX IF NOT EXISTS idx_wishlist_user ON wishlists (id, user_id);
 	CREATE INDEX IF NOT EXISTS idx_items_wishlist ON items (wishlist_id);
 	CREATE INDEX IF NOT EXISTS idx_shared_shared_with ON shared (shared_with);
 	CREATE INDEX IF NOT EXISTS idx_shared_wishlist_id ON shared (wishlist_id);
+	CREATE INDEX IF NOT EXISTS idx_shared_wishlist_id_shared_with ON shared(wishlist_id, shared_with);
 	CREATE OR REPLACE FUNCTION update_wishlist_last_modified()
 	RETURNS TRIGGER AS $$
 	BEGIN
@@ -56,6 +59,16 @@ func createTables(dbpool *pgxpool.Pool) error {
     WHERE id = NEW.wishlist_id;
     
     RETURN NEW;
+	END;
+	$$ LANGUAGE plpgsql;
+	CREATE OR REPLACE FUNCTION update_wishlist_last_modified_on_delete()
+	RETURNS TRIGGER AS $$
+	BEGIN
+    UPDATE wishlists
+    SET last_modified = CURRENT_TIMESTAMP
+    WHERE id = OLD.wishlist_id;
+
+    RETURN OLD;
 	END;
 	$$ LANGUAGE plpgsql;
 	CREATE OR REPLACE FUNCTION update_wishlist_last_modified_self()
@@ -92,6 +105,16 @@ func createTables(dbpool *pgxpool.Pool) error {
             OLD.is_public IS DISTINCT FROM NEW.is_public
         )
         EXECUTE FUNCTION update_wishlist_last_modified_self();
+    END IF;
+		IF NOT EXISTS (
+        SELECT 1
+        FROM pg_trigger
+        WHERE tgname = 'trigger_update_wishlist_last_modified_on_delete'
+    ) THEN
+        CREATE TRIGGER trigger_update_wishlist_last_modified_on_delete
+        AFTER DELETE ON items
+        FOR EACH ROW
+        EXECUTE FUNCTION update_wishlist_last_modified_on_delete();
     END IF;
 END;
 $$;

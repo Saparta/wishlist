@@ -3,7 +3,6 @@ module github.com/Saparta/wishlist/wishlist/services/wishlist-service
 go 1.23.4
 
 require (
-	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.69.2
