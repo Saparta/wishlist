@@ -20,11 +20,6 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 		return nil, status.Error(codes.Internal, "Failed to retrieve database connection from context")
 	}
 
-	userID := request.GetUserId()
-	if userID == "" {
-		return nil, status.Error(codes.InvalidArgument, "User ID is required")
-	}
-
 	rows, err := dbPool.Query(ctx, `
     SELECT
 			w.id AS wishlist_id, 
@@ -43,8 +38,8 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
     FROM wishlists w
 		LEFT JOIN items i
 		ON w.id = i.wishlist_id
-    WHERE w.user_id = $1
-    `, userID)
+    WHERE w.user_id = $1;
+    `, request.UserId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to query wishlists: %v", err.Error())
 	}
@@ -76,7 +71,7 @@ func (w *WishlistService) GetUserWishlists(ctx context.Context, request *pb.GetU
 		if !found {
 			wishMap[*wishlistId] = &pb.Wishlist{
 				Id:           wishlistId,
-				UserId:       &userID,
+				UserId:       request.UserId,
 				Title:        title,
 				Description:  description,
 				IsPublic:     isPublic,

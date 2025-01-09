@@ -2,7 +2,6 @@ package shared
 
 import (
 	"context"
-	"log"
 
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/jackc/pgx/v5"
@@ -18,7 +17,6 @@ func MarkItem(ctx context.Context, request *proto.ItemMarkingRequest, markingOpt
 	}
 	dbPool, ok := ctx.Value(DBSession).(*pgxpool.Pool)
 	if !ok {
-		log.Print("Made it to dbPool connect failure")
 		errChannel <- status.Error(codes.Internal, "Failed to retrieve database connection from context")
 	}
 
@@ -39,16 +37,12 @@ func MarkItem(ctx context.Context, request *proto.ItemMarkingRequest, markingOpt
 	err := row.Scan(&id)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			log.Print("Made it to no rows success")
 			succChannel <- &proto.ItemMarkingResponse{Success: false}
 			return
 		} else {
-			log.Print("Made it to scan failure")
 			errChannel <- status.Errorf(codes.Internal, "Failure to query items: %v", err)
 			return
 		}
 	}
-
-	log.Print("Made it to success")
 	succChannel <- &proto.ItemMarkingResponse{Success: true}
 }

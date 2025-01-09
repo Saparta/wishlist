@@ -16,6 +16,8 @@ service WishlistService {
 
   rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse);
 
+  rpc GetUserWishlist(GetUserWishlistRequest) returns (GetUserWishlistResponse);
+
   rpc GetUserWishlists(GetUserWishlistsRequest) returns (GetUserWishlistsResponse);
 
   rpc GetWishlistsSharedWithUser(GetWishlistsSharedWithUserRequest) returns (GetWishlistsSharedWithUserResponse);
@@ -76,6 +78,15 @@ message GetUserWishlistsRequest {
 
 message GetUserWishlistsResponse {
   repeated Wishlist wishlists = 1;
+}
+
+message GetUserWishlistRequest {
+  optional string userId = 1;
+  optional string wishlistId = 2;
+}
+
+message GetUserWishlistResponse {
+  optional Wishlist wishlist = 1;
 }
 
 message CreateWishlistRequest {
