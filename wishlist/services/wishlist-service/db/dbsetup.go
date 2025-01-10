@@ -88,7 +88,10 @@ func createTables(dbpool *pgxpool.Pool) error {
         CREATE TRIGGER trigger_update_wishlist_last_modified
         AFTER UPDATE ON items
         FOR EACH ROW
-        WHEN (OLD.* IS DISTINCT FROM NEW.*)
+        WHEN (OLD.name IS DISTINCT FROM NEW.name OR
+							OLD.url IS DISTINCT FROM NEW.url OR
+							OLD.price IS DISTINCT FROM NEW.price
+				)
         EXECUTE FUNCTION update_wishlist_last_modified();
     END IF;
     IF NOT EXISTS (
