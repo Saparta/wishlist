@@ -173,6 +173,7 @@ message Wishlist {
   optional google.protobuf.Timestamp createdAt = 6;
   optional google.protobuf.Timestamp lastModified = 7;
 	optional google.protobuf.Timestamp lastOpened = 8;
+  repeated string sharedWith = 11;
   repeated WishlistItem items = 9;
 }
 

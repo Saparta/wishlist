@@ -37,7 +37,8 @@ func (w *WishlistService) GetAllUserWishlists(ctx context.Context, request *pb.G
     FROM wishlists w
 		LEFT JOIN items i
 		ON w.id = i.wishlist_id
-    WHERE w.user_id = $1;
+    WHERE w.user_id = $1
+		ORDER BY w.last_opened DESC;
     `, request.UserId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to query wishlists: %v", err.Error())
@@ -78,6 +79,7 @@ func (w *WishlistService) GetAllUserWishlists(ctx context.Context, request *pb.G
 				LastOpened:   timestamppb.New(*lastOpened),
 				LastModified: timestamppb.New(*lastModified),
 				Items:        allItems,
+				SharedWith: []string{},
 			}
 		} else {
 			val.Items = append(val.Items, allItems...)

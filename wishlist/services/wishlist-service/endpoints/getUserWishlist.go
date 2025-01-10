@@ -18,6 +18,10 @@ func (w *WishlistService) GetUserWishlist(ctx context.Context, request *pb.GetUs
 		return nil, err
 	}
 
+	var getSharedWith chan []string = make(chan []string, 1)
+	var errChannel chan error = make(chan error, 1)
+	go shared.GetWishlistSharedUsers(ctx, *request.WishlistId, getSharedWith, errChannel)
+
 	rows, err := dbPool.Query(ctx, `
   WITH updated_wishlist AS (
     UPDATE wishlists
@@ -40,7 +44,8 @@ func (w *WishlistService) GetUserWishlist(ctx context.Context, request *pb.GetUs
     i.gifted_by AS item_gifted_by,
     i.created_at AS item_created_at
 	FROM updated_wishlist uw
-	LEFT JOIN items i ON uw.id = i.wishlist_id;
+	LEFT JOIN items i ON uw.id = i.wishlist_id
+	ORDER BY i.created_at;
     `, request.UserId, request.WishlistId)
 
 	if err != nil {
@@ -57,13 +62,33 @@ func (w *WishlistService) GetUserWishlist(ctx context.Context, request *pb.GetUs
 		}
 		wishlist.LastModified = timestamppb.New(*wishLastModified)
 		wishlist.LastOpened = timestamppb.New(*wishLastOpened)
-		item.CreatedAt = timestamppb.New(*itemCreatedAt)
+		var createdAt *timestamppb.Timestamp
+		if itemCreatedAt == nil {
+			createdAt = timestamppb.Now()
+		} else {
+			createdAt = timestamppb.New(*itemCreatedAt)
+		}
+		item.CreatedAt = createdAt
 		return &item, nil
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to process query results: %v", err.Error())
 	}
-	wishlist.Items = items
+	
+	wishlist.Items = []*pb.WishlistItem{}
+	for _, item := range items {
+		if item.Id != nil {
+			wishlist.Items = append(wishlist.Items, item)
+		}
+	}
+
+	select {
+	case sharedWithUsers := <-getSharedWith:
+		wishlist.SharedWith = sharedWithUsers
+	case err = <-errChannel:
+		return nil, err
+	}
+
 	return &pb.GetUserWishlistResponse{
 		Wishlist: &wishlist,
 	}, nil

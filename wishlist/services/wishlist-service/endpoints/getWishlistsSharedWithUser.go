@@ -18,10 +18,6 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 		return nil, err
 	}
 
-	userID := request.GetUserId()
-	if userID == "" {
-		return nil, status.Error(codes.InvalidArgument, "User ID is required")
-	}
 	rows, err := dbPool.Query(ctx, `
 	SELECT
 			sw.id AS wishlist_id, 
@@ -49,14 +45,14 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 				s.last_modified
 		FROM
 				shared s JOIN wishlists w ON s.wishlist_id = w.id
-		WHERE s.shared_with = $1 AND w.is_public = True) sw 
-		LEFT JOIN items i ON sw.id = i.wishlist_id;
+		WHERE s.shared_with = $1 AND (w.is_public = TRUE OR s.can_edit = TRUE)) sw 
+		LEFT JOIN items i ON sw.id = i.wishlist_id
+		ORDER BY sw.last_opened;
 	;
-	`, userID)
+	`, request.UserId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failure to query wishlists: %v", err)
 	}
-
 	wishMap := make(map[string]*pb.Wishlist)
 	var wishlistId, title, description, name, url, giftedBy, itemId *string
 	var price *float32
@@ -84,7 +80,7 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 			if !found {
 				wishMap[*wishlistId] = &pb.Wishlist{
 					Id:           wishlistId,
-					UserId:       &userID,
+					UserId:       request.UserId,
 					Title:        title,
 					Description:  description,
 					IsPublic:     isPublic,
@@ -101,6 +97,26 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "Failed to process rows")
+	}
+
+	wishlistIds := make([]string, 0, len(wishMap))
+	for key := range wishMap {
+		wishlistIds = append(wishlistIds, key)
+	}
+	var getSharedWith = make(chan map[string][]string, 1)
+	var errChannel chan error = make(chan error, 1)
+	go shared.BatchGetWishlistsSharedUsers(ctx, wishlistIds, getSharedWith, errChannel)
+
+	select {
+	case sharedWithMap := <-getSharedWith:
+		for id, sharedWith := range sharedWithMap {
+			wishlist, found := wishMap[id]
+			if found {
+				wishlist.SharedWith = sharedWith
+			}
+		}
+	case err := <-errChannel:
+		return nil, err
 	}
 
 	var wishlists []*pb.Wishlist
