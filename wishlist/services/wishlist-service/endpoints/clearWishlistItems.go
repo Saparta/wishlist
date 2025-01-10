@@ -15,8 +15,19 @@ func (w *WishlistService) ClearWishlistItems(ctx context.Context, request *pb.Cl
 		return nil, err
 	}
 
-	query := `DELETE FROM items WHERE wishlist_id = $1 AND wishlist_id IN
-	(SELECT id FROM wishlists WHERE id = $1 AND user_id = $2);`
+	query := `
+	WITH deleted_items AS (
+    DELETE FROM items
+    WHERE wishlist_id = $1
+      AND wishlist_id IN (
+          SELECT id FROM wishlists WHERE id = $1 AND user_id = $2
+      )
+    RETURNING wishlist_id
+	)
+	UPDATE wishlists
+	SET last_modified = CURRENT_TIMESTAMP
+	WHERE id = (SELECT DISTINCT wishlist_id FROM deleted_items LIMIT 1);
+`
 	rows, err := dbPool.Query(ctx, query, request.WishlistId, request.UserId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

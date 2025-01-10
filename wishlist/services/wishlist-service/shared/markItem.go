@@ -29,7 +29,6 @@ func MarkItem(ctx context.Context, request *proto.ItemMarkingRequest, markingOpt
 	UPDATE items SET 
 		gifted_by = $1,
 		is_gifted = $2
-		last_modified = CURRENT_TIMESTAMP
 	WHERE 
 		id = $3 AND is_gifted = $4
 	RETURNING id;`, userId, *markingOption, request.ItemId, !*markingOption)

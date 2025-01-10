@@ -22,18 +22,33 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
 
 	rows, err := dbPool.Query(ctx, `
 	WITH authorized_users AS (
-		SELECT user_id FROM
+		SELECT w.id AS wishlist_id, w.user_id, s.shared_with FROM
     wishlists w
     LEFT JOIN shared s ON w.id = s.wishlist_id
     WHERE w.id = $1
       AND (w.user_id = $7 OR (s.shared_with = $7 AND s.can_edit = TRUE))
+	),
+	updated_items AS (
+		INSERT INTO items (wishlist_id, name, url, price, is_gifted, gifted_by)
+		SELECT $1, $2, $3, $4, $5, $6
+		WHERE EXISTS (
+    	SELECT 1 FROM authorized_users
+		)
+		RETURNING id, wishlist_id, name, url, price, is_gifted, gifted_by, created_at
+	),
+	update_shared AS (
+    UPDATE shared
+    SET last_modified = CURRENT_TIMESTAMP
+    WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
+    AND shared_with = $7
+	),
+	update_wishlist AS (
+		UPDATE wishlists
+		SET last_modified = CURRENT_TIMESTAMP
+		WHERE id in (SELECT wishlist_id FROM authorized_users)
+		AND user_id = $7
 	)
-	INSERT INTO items (id, wishlist_id, name, url, price, is_gifted, gifted_by)
-	SELECT gen_random_uuid(), $1, $2, $3, $4, $5, $6
-	WHERE EXISTS (
-    SELECT 1 FROM authorized_users
-	)
-	RETURNING id, wishlist_id, name, url, price, is_gifted, gifted_by, created_at;
+	SELECT * FROM updated_items;
 	`, request.WishlistId, request.Name, request.Url, request.Price,
 		request.IsGifted, request.GiftedBy, request.UserId)
 	if err != nil {

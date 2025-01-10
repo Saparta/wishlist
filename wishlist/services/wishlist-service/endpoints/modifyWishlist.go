@@ -18,22 +18,37 @@ func (W *WishlistService) ModifyWishlist(ctx context.Context, request *pb.Modify
 	if err != nil {
 		return nil, err
 	}
-	
+
 	rows, err := dbPool.Query(ctx, `
 	WITH authorized_users AS (
-    SELECT w.id AS wishlist_id
+    SELECT w.id AS wishlist_id, s.shared_with
     FROM wishlists w
     LEFT JOIN shared s ON w.id = s.wishlist_id
     WHERE w.id = $1
       AND (w.user_id = $2 OR (s.shared_with = $2 AND s.can_edit = TRUE))
+	),
+	updated_wishlist AS (
+    UPDATE wishlists
+    SET
+        title = $3,
+        description = $4,
+        is_public = $5,
+				last_modified = 
+				CASE
+        	WHEN user_id = $2 THEN CURRENT_TIMESTAMP
+        	ELSE last_modified
+    		END
+    WHERE id IN (SELECT wishlist_id FROM authorized_users)
+    RETURNING id, user_id, title, description, is_public, created_at, last_modified, last_opened
+	),
+	update_shared AS (
+    UPDATE shared
+    SET last_modified = CURRENT_TIMESTAMP
+    WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
+      AND shared_with = $2
+    RETURNING wishlist_id
 	)
-	UPDATE wishlists SET
-		title = $3,
-		description = $4,
-		is_public = $5
-	WHERE 
-		id in (SELECT wishlist_id FROM authorized_users)
-	RETURNING id, user_id, title, description, is_public, created_at, last_modified, last_opened;`, request.Id, request.UserId, request.Title, request.Description, request.IsPublic)
+	SELECT * FROM updated_wishlist;`, request.Id, request.UserId, request.Title, request.Description, request.IsPublic)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to query database: %s", err.Error())
 	}

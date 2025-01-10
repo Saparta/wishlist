@@ -20,21 +20,41 @@ func (w *WishlistService) ModifyWishlistItem(ctx context.Context, request *pb.Mo
 	var done chan *pb.ItemMarkingResponse = make(chan *pb.ItemMarkingResponse)
 	var errChan chan error = make(chan error)
 	go shared.MarkItem(ctx, &pb.ItemMarkingRequest{UserId: request.UserId, ItemId: request.Id}, request.GiftedStatus, done, errChan)
+	// TODO: Use request.wishlistId instead of joining
 	row, err := dbPool.Query(ctx, `
 	WITH authorized_users AS (
-    SELECT i.id AS item_id
+    SELECT 
+        i.id AS item_id,
+        w.id AS wishlist_id
     FROM items i
     JOIN wishlists w ON i.wishlist_id = w.id
     LEFT JOIN shared s ON w.id = s.wishlist_id
     WHERE i.id = $1
       AND (w.user_id = $2 OR (s.shared_with = $2 AND s.can_edit = TRUE))
+	),
+	updated_items AS (
+    UPDATE items
+    SET
+        name = $3,
+        url = $4,
+        price = $5
+    WHERE id IN (SELECT item_id FROM authorized_users)
+    RETURNING wishlist_id
+	),
+	update_shared AS (
+    UPDATE shared
+    SET last_modified = CURRENT_TIMESTAMP
+    WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
+    AND shared_with = $2
+	),
+	update_wishlist AS (
+		UPDATE wishlists
+		SET last_modified = CURRENT_TIMESTAMP
+		WHERE id in (SELECT wishlist_id FROM authorized_users)
+		AND user_id = $2
 	)
-	UPDATE items
-	SET
-    name = $3,
-    url = $4,
-    price = $5
-	WHERE id IN (SELECT item_id FROM authorized_users);`,
+	SELECT * FROM updated_items;
+`,
 		request.Id, request.UserId, request.Name, request.Url, request.Price)
 
 	if err != nil {
