@@ -25,7 +25,25 @@ service WishlistService {
   rpc ModifyWishlist(ModifyWishlistRequest) returns (ModifyWishlistResponse);
 
   rpc ModifyWishlistItem(ModifyWishlistItemRequest) returns (ModifyWishlistItemResponse);
+
+  rpc DeleteWishlist(DeleteWishlistRequest) returns (DeleteWishlistResponse);
+
+  rpc DeleteWishlistItem(DeleteWishlistItemRequest) returns (DeleteWishlistItemResponse);
 }
+
+message DeleteWishlistItemRequest {
+  optional string itemId = 1;
+  optional string userId = 2;
+}
+
+message DeleteWishlistItemResponse {}
+
+message DeleteWishlistRequest {
+  optional string wishlistId = 1;
+  optional string userId = 2;
+}
+
+message DeleteWishlistResponse {}
 
 message ModifyWishlistItemRequest {
   optional string id = 1; // Needed to determine wishlist and access rights

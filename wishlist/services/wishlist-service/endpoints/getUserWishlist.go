@@ -7,16 +7,15 @@ import (
 	pb "github.com/Saparta/wishlist/wishlist/services/wishlist-service/proto"
 	"github.com/Saparta/wishlist/wishlist/services/wishlist-service/shared"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (w *WishlistService) GetUserWishlist(ctx context.Context, request *pb.GetUserWishlistRequest) (*pb.GetUserWishlistResponse, error) {
-	dbPool, ok := ctx.Value(shared.DBSession).(*pgxpool.Pool)
-	if !ok {
-		return nil, status.Error(codes.Internal, "Failed to retrieve database connection from context")
+	dbPool, err := shared.ConnectToDatabase(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	rows, err := dbPool.Query(ctx, `

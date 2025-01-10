@@ -9,18 +9,16 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (w *WishlistService) ClearWishlistItems(ctx context.Context, request *pb.ClearWishlistItemsRequest) (*pb.ClearWishlistItemsResponse, error) {
+func (w *WishlistService) DeleteWishlist(ctx context.Context, request *pb.DeleteWishlistRequest) (*pb.DeleteWishlistResponse, error) {
 	dbPool, err := shared.ConnectToDatabase(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	query := `DELETE FROM items WHERE wishlist_id = $1 AND wishlist_id IN
-	(SELECT id FROM wishlists WHERE id = $1 AND user_id = $2);`
-	rows, err := dbPool.Query(ctx, query, request.WishlistId, request.UserId)
+	rows, err := dbPool.Query(ctx, `DELETE FROM wishlists WHERE id = $1 AND user_id = $2`, request.WishlistId, request.UserId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	defer rows.Close()
-	return &pb.ClearWishlistItemsResponse{}, nil
+	return &pb.DeleteWishlistResponse{}, nil
 }
