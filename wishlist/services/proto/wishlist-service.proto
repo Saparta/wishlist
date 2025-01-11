@@ -26,9 +26,22 @@ service WishlistService {
 
   rpc ModifyWishlistItem(ModifyWishlistItemRequest) returns (ModifyWishlistItemResponse);
 
+  rpc ShareWishlist(ShareWishlistRequest) returns (ShareWishlistResponse);
+
   rpc DeleteWishlist(DeleteWishlistRequest) returns (DeleteWishlistResponse);
 
   rpc DeleteWishlistItem(DeleteWishlistItemRequest) returns (DeleteWishlistItemResponse);
+}
+
+message ShareWishlistRequest{
+  optional string userId = 1;
+  optional string wishlistId = 2;
+  repeated string shareWith = 3;
+  optional bool canEdit = 4;
+}
+
+message ShareWishlistResponse{
+  repeated string sharedWith = 1;
 }
 
 message DeleteWishlistItemRequest {
