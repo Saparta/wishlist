@@ -8,13 +8,14 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func GetWishlistSharedUsers(ctx context.Context, wishlistId string, doneChannel chan []string, errChannel chan error) {
+func GetWishlistSharedUsers(ctx context.Context, wishlistId string, userId string, doneChannel chan []string, errChannel chan error) {
 	dbPool, err := ConnectToDatabase(ctx)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to connect to database: %s", err.Error())
 		return
 	}
-	rows, err := dbPool.Query(ctx, "SELECT user_id FROM shared WHERE wishlist_id = $1", wishlistId)
+	rows, err := dbPool.Query(ctx, "SELECT user_id FROM shared WHERE wishlist_id = $1 AND user_id <> $2",
+		wishlistId, userId)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to query database: %s", err.Error())
 		return
@@ -35,7 +36,7 @@ func GetWishlistSharedUsers(ctx context.Context, wishlistId string, doneChannel 
 	doneChannel <- allSharedWithUsers
 }
 
-func BatchGetWishlistsSharedUsers(ctx context.Context, wishlistIds []string, doneChannel chan map[string][]string, errChannel chan error) {
+func BatchGetWishlistsSharedUsers(ctx context.Context, wishlistIds []string, userId string, doneChannel chan map[string][]string, errChannel chan error) {
 	dbPool, err := ConnectToDatabase(ctx)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to connect to database: %s", err.Error())
@@ -43,7 +44,8 @@ func BatchGetWishlistsSharedUsers(ctx context.Context, wishlistIds []string, don
 	}
 
 	rows, err := dbPool.Query(ctx,
-		"SELECT wishlist_id, shared_with FROM shared WHERE wishlist_id = ANY($1)", wishlistIds)
+		"SELECT wishlist_id, shared_with FROM shared WHERE wishlist_id = ANY($1) AND user_id <> $2",
+		wishlistIds, userId)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to query database: %s", err.Error())
 		return

@@ -20,7 +20,7 @@ func (w *WishlistService) GetWishlist(ctx context.Context, request *pb.GetWishli
 
 	var getSharedWith chan []string = make(chan []string, 1)
 	var errChannel chan error = make(chan error, 1)
-	go shared.GetWishlistSharedUsers(ctx, *request.WishlistId, getSharedWith, errChannel)
+	go shared.GetWishlistSharedUsers(ctx, *request.WishlistId, *request.UserId, getSharedWith, errChannel)
 
 	query := `
   WITH updated_shared AS (

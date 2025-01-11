@@ -106,7 +106,7 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 	}
 	var getSharedWith = make(chan map[string][]string, 1)
 	var errChannel chan error = make(chan error, 1)
-	go shared.BatchGetWishlistsSharedUsers(ctx, wishlistIds, getSharedWith, errChannel)
+	go shared.BatchGetWishlistsSharedUsers(ctx, wishlistIds, *request.UserId, getSharedWith, errChannel)
 
 	select {
 	case sharedWithMap := <-getSharedWith:
