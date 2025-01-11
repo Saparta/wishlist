@@ -22,11 +22,10 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
 
 	rows, err := dbPool.Query(ctx, `
 	WITH authorized_users AS (
-		SELECT w.id AS wishlist_id, w.user_id, s.shared_with FROM
-    wishlists w
-    LEFT JOIN shared s ON w.id = s.wishlist_id
-    WHERE w.id = $1
-      AND (w.user_id = $5 OR (s.shared_with = $5 AND s.can_edit = TRUE))
+		SELECT s.wishlist_id, s.user_id FROM
+		shared s
+		WHERE s.wishlist_id = $1 AND
+			s.user_id = $5 AND (s.can_edit = TRUE OR s.is_owner = TRUE)
 	),
 	updated_items AS (
 		INSERT INTO items (wishlist_id, name, url, price)
@@ -40,13 +39,7 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
     UPDATE shared
     SET last_modified = CURRENT_TIMESTAMP
     WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
-    AND shared_with = $5
-	),
-	update_wishlist AS (
-		UPDATE wishlists
-		SET last_modified = CURRENT_TIMESTAMP
-		WHERE id in (SELECT wishlist_id FROM authorized_users)
-		AND user_id = $5
+    AND user_id = $5
 	)
 	SELECT * FROM updated_items;
 	`, request.WishlistId, request.Name, request.Url, request.Price, request.UserId)

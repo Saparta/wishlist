@@ -19,8 +19,23 @@ func (w *WishlistService) CreateWishlist(ctx context.Context, request *pb.Create
 		return nil, err
 	}
 
-	rows, err := dbPool.Query(ctx,
-		`INSERT INTO wishlists (id, user_id, title, description, is_public) VALUES (gen_random_uuid(), $1, $2, $3, $4) RETURNING id, user_id, title, description, is_public, created_at, last_modified, last_opened`, request.UserId, request.Title, request.Description, request.IsPublic)
+	rows, err := dbPool.Query(ctx, `
+		WITH updated_wishlists AS (
+			INSERT INTO wishlists (title, description, is_public) 
+			VALUES ($2, $3, $4) 
+			RETURNING id, title, description, is_public
+		),
+		updated_shared AS (
+			INSERT INTO shared (wishlist_id, user_id, is_owner, can_edit)
+			SELECT id, $1, TRUE, TRUE
+			FROM updated_wishlists
+			RETURNING *
+		)
+		SELECT 
+			w.id, s.user_id, w.title, w.description,
+			w.is_public, s.created_at, s.last_modified, s.last_opened
+			FROM updated_wishlists w JOIN updated_shared s ON w.id = s.wishlist_id;`,
+		request.UserId, request.Title, request.Description, request.IsPublic)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

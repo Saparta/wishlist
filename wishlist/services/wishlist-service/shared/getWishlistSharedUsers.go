@@ -14,7 +14,7 @@ func GetWishlistSharedUsers(ctx context.Context, wishlistId string, doneChannel 
 		errChannel <- status.Errorf(codes.Internal, "Failed to connect to database: %s", err.Error())
 		return
 	}
-	rows, err := dbPool.Query(ctx, "SELECT shared_with FROM shared WHERE wishlist_id = $1", wishlistId)
+	rows, err := dbPool.Query(ctx, "SELECT user_id FROM shared WHERE wishlist_id = $1", wishlistId)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to query database: %s", err.Error())
 		return

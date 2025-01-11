@@ -24,6 +24,7 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 			sw.title AS wishlist_title, 
 			sw.description AS wishlist_description,
 			sw.is_public AS is_public,
+			sw.can_edit,
 			sw.last_opened AS wishlist_last_opened,
 			sw.last_modified AS wishlist_last_modified,
 			i.id AS item_id,
@@ -36,7 +37,6 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 	FROM
 		(SELECT
 				s.wishlist_id as id,
-				s.shared_with as user_id,
 				w.title,
 				w.description,
 				w.is_public,
@@ -45,7 +45,8 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 				s.last_modified
 		FROM
 				shared s JOIN wishlists w ON s.wishlist_id = w.id
-		WHERE s.shared_with = $1 AND (w.is_public = TRUE OR s.can_edit = TRUE)) sw 
+		WHERE s.user_id = $1 AND s.is_owner = FALSE AND (w.is_public = TRUE OR s.can_edit = TRUE)
+		) sw 
 		LEFT JOIN items i ON sw.id = i.wishlist_id
 		ORDER BY sw.last_opened;
 	;
@@ -56,9 +57,9 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 	wishMap := make(map[string]*pb.Wishlist)
 	var wishlistId, title, description, name, url, giftedBy, itemId *string
 	var price *float32
-	var isPublic, isGifted *bool
+	var isPublic, isGifted, canEdit *bool
 	var lastOpened, lastModified, createdAt *time.Time
-	_, err = pgx.ForEachRow(rows, []any{&wishlistId, &title, &description, &isPublic, &lastOpened, &lastModified, &itemId, &name, &url, &price, &isGifted, &giftedBy, &createdAt},
+	_, err = pgx.ForEachRow(rows, []any{&wishlistId, &title, &description, &isPublic, &canEdit, &lastOpened, &lastModified, &itemId, &name, &url, &price, &isGifted, &giftedBy, &createdAt},
 		func() error {
 			val, found := wishMap[*wishlistId]
 			var allItems []*pb.WishlistItem
@@ -84,7 +85,7 @@ func (w *WishlistService) GetWishlistsSharedWithUser(ctx context.Context, reques
 					Title:        title,
 					Description:  description,
 					IsPublic:     isPublic,
-					CanEdit:      func() *bool { b := true; return &b }(), // This is just a pointer to True
+					CanEdit:      canEdit,
 					LastOpened:   timestamppb.New(*lastOpened),
 					LastModified: timestamppb.New(*lastModified),
 					Items:        allItems,

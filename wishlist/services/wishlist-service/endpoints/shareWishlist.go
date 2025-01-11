@@ -29,16 +29,16 @@ func (W *WishlistService) ShareWishlist(ctx context.Context, request *pb.ShareWi
 
 	query := fmt.Sprintf(`
     WITH authorized_users AS (
-        SELECT w.id AS wishlist_id, s.shared_with
-        FROM wishlists w
-        LEFT JOIN shared s ON w.id = s.wishlist_id
-        WHERE w.id = $1
-          AND (w.user_id = $2 OR (s.shared_with = $2 AND s.can_edit = TRUE))
-    )
-    INSERT INTO shared (wishlist_id, shared_with, can_edit)
+  		SELECT s.wishlist_id
+  		FROM shared s
+  		WHERE s.wishlist_id = $1
+    		AND s.user_id = $2
+    		AND (s.can_edit = TRUE OR s.is_owner = TRUE)
+		)
+    INSERT INTO shared (wishlist_id, user_id, can_edit)
     VALUES %s
     ON CONFLICT DO NOTHING
-		RETURNING shared_with;
+		RETURNING user_id;
 `, strings.Join(placeholders, ", "))
 
 	rows, err := dbPool.Query(ctx, query, args...)

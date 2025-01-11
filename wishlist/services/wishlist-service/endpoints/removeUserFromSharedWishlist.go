@@ -17,15 +17,16 @@ func (w *WishlistService) RemoveUserFromSharedWishlist(ctx context.Context, requ
 
 	rows, err := dbPool.Query(ctx, `
 	WITH authorized_users AS (
-		SELECT w.id AS wishlist_id, w.user_id, s.shared_with FROM
-    wishlists w
-    LEFT JOIN shared s ON w.id = s.wishlist_id
-    WHERE w.id = $1
-      AND (w.user_id = $2 OR (s.shared_with = $2 AND s.can_edit = TRUE))
+  SELECT s.wishlist_id
+  FROM shared s
+  WHERE s.wishlist_id = $1
+    AND s.user_id = $2
+    AND (s.can_edit = TRUE OR s.is_owner = TRUE)
 	)
 	DELETE FROM shared
-	WHERE shared_with = $3 AND
-	wishlist_id in (SELECT wishlist_id from authorized_users)`,
+	WHERE user_id = $3 AND
+	is_owner = FALSE AND
+	wishlist_id in (SELECT wishlist_id from authorized_users);`,
 		request.WishlistId, request.UserId, request.UserToRemove)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

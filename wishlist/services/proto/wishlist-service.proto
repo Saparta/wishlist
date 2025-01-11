@@ -71,8 +71,8 @@ message DeleteWishlistRequest {
 message DeleteWishlistResponse {}
 
 message ModifyWishlistItemRequest {
+  reserved 7 to 9;
   optional string id = 1; // Needed to determine wishlist and access rights
-  optional string wishlistId = 9; // Needed to determine wishlist and access rights
   optional string userId = 2; // Needed to determine wishlist and access rights
   // Editable Fields below, null indicates no change
   optional string name = 3;
@@ -126,9 +126,10 @@ message GetAllUserWishlistsResponse {
 }
 
 message GetWishlistRequest {
+  reserved 3;
   optional string userId = 1;
   optional string wishlistId = 2;
-  optional bool isOwnWishlist = 3;
+  optional bool displayGiftedStatus = 4;
 }
 
 message GetWishlistResponse {

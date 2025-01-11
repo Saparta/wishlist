@@ -22,56 +22,27 @@ func (w *WishlistService) GetWishlist(ctx context.Context, request *pb.GetWishli
 	var errChannel chan error = make(chan error, 1)
 	go shared.GetWishlistSharedUsers(ctx, *request.WishlistId, getSharedWith, errChannel)
 
-	var query string
-	if *request.IsOwnWishlist {
-		query = `
-  WITH updated_wishlist AS (
-    UPDATE wishlists
-    SET last_opened = CURRENT_TIMESTAMP
-    WHERE user_id = $1 AND id = $2
-    RETURNING id, title, description, is_public, last_opened, last_modified
-	)
-	SELECT
-    uw.id AS wishlist_id, 
-    uw.title AS wishlist_title, 
-    uw.description AS wishlist_description,
-    uw.is_public AS is_public,
-    uw.last_opened AS wishlist_last_opened,
-    uw.last_modified AS wishlist_last_modified,
-    i.id AS item_id,
-    i.name AS item_name,
-    i.url AS item_url,
-    i.price AS item_price,
-    i.is_gifted AS item_is_gifted,
-    i.gifted_by AS item_gifted_by,
-    i.created_at AS item_created_at
-	FROM updated_wishlist uw
-	LEFT JOIN items i ON uw.id = i.wishlist_id
-	ORDER BY i.created_at;`
-	} else {
-		query = `
-	WITH authorized_wishlists AS (
-    SELECT w.id AS wishlist_id
-    FROM wishlists w
-    JOIN shared s ON w.id = s.wishlist_id
-    WHERE w.id = $2
-      AND (w.is_public = TRUE OR s.shared_with = $1)
-	),
-	updated_shared AS (
+	query := `
+  WITH updated_shared AS (
     UPDATE shared
     SET last_opened = CURRENT_TIMESTAMP
-    WHERE shared_with = $1 
-      AND wishlist_id = $2
-      AND $2 IN (SELECT wishlist_id FROM authorized_wishlists)
-    RETURNING wishlist_id
+    WHERE user_id = $1 AND wishlist_id = $2
+      AND (
+        EXISTS 
+					(SELECT 1 FROM shared s
+					WHERE s.user_id = $1 AND s.wishlist_id = $2 AND (s.is_owner = TRUE OR s.can_edit)
+					)
+        OR (SELECT w.is_public FROM wishlists w WHERE w.id = $2) = TRUE
+      )
+    RETURNING wishlist_id, last_opened, last_modified
 	)
 	SELECT
     w.id AS wishlist_id, 
     w.title AS wishlist_title, 
     w.description AS wishlist_description,
     w.is_public AS is_public,
-    w.last_opened AS wishlist_last_opened,
-    w.last_modified AS wishlist_last_modified,
+    us.last_opened AS wishlist_last_opened,
+    us.last_modified AS wishlist_last_modified,
     i.id AS item_id,
     i.name AS item_name,
     i.url AS item_url,
@@ -79,12 +50,11 @@ func (w *WishlistService) GetWishlist(ctx context.Context, request *pb.GetWishli
     i.is_gifted AS item_is_gifted,
     i.gifted_by AS item_gifted_by,
     i.created_at AS item_created_at
-	FROM wishlists w
+	FROM updated_shared us
+	JOIN wishlists w ON w.id = us.wishlist_id
 	LEFT JOIN items i ON w.id = i.wishlist_id
-	WHERE w.id IN (SELECT wishlist_id FROM authorized_wishlists)
-	ORDER BY i.created_at;`
-	}
-
+	ORDER BY i.created_at;
+`
 	rows, err := dbPool.Query(ctx, query, request.UserId, request.WishlistId)
 
 	if err != nil {
@@ -117,7 +87,7 @@ func (w *WishlistService) GetWishlist(ctx context.Context, request *pb.GetWishli
 	wishlist.Items = []*pb.WishlistItem{}
 	for _, item := range items {
 		if item.Id != nil {
-			if *request.IsOwnWishlist {
+			if *request.DisplayGiftedStatus {
 				item.GiftedBy = nil
 				item.IsGifted = nil
 			}

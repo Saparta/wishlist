@@ -20,25 +20,37 @@ func (w *WishlistService) GetAllUserWishlists(ctx context.Context, request *pb.G
 	}
 
 	rows, err := dbPool.Query(ctx, `
-    SELECT
-			w.id AS wishlist_id, 
-			w.title AS wishlist_title, 
-			w.description AS wishlist_description,
-			w.is_public AS is_public,
-			w.last_opened AS wishlist_last_opened,
-			w.last_modified AS wishlist_last_modified,
-			i.id AS item_id,
-			i.name AS item_name,
-			i.url AS item_url,
-			i.price AS item_price ,
-			i.is_gifted AS item_is_gifted,
-			i.gifted_by AS item_gifted_by,
-			i.created_at AS item_created_at
-    FROM wishlists w
-		LEFT JOIN items i
-		ON w.id = i.wishlist_id
-    WHERE w.user_id = $1
-		ORDER BY w.last_opened DESC;
+  SELECT
+    sw.id AS wishlist_id, 
+    sw.title AS wishlist_title, 
+    sw.description AS wishlist_description,
+    sw.is_public AS is_public,
+    sw.last_opened AS wishlist_last_opened,
+    sw.last_modified AS wishlist_last_modified,
+    i.id AS item_id,
+    i.name AS item_name,
+    i.url AS item_url,
+    i.price AS item_price,
+    i.is_gifted AS item_is_gifted,
+    i.gifted_by AS item_gifted_by,
+    i.created_at AS item_created_at
+	FROM (
+    SELECT 
+      w.id,
+      w.title,
+      w.description,
+      w.is_public,
+      s.user_id,
+      s.last_opened,
+      s.last_modified
+    FROM wishlists w 
+    JOIN shared s ON w.id = s.wishlist_id
+    WHERE s.user_id = $1 AND s.is_owner = TRUE
+	) sw
+	LEFT JOIN items i
+	ON sw.id = i.wishlist_id
+	ORDER BY sw.last_opened DESC;
+
     `, request.UserId)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Failed to query wishlists: %v", err.Error())
@@ -79,7 +91,7 @@ func (w *WishlistService) GetAllUserWishlists(ctx context.Context, request *pb.G
 				LastOpened:   timestamppb.New(*lastOpened),
 				LastModified: timestamppb.New(*lastModified),
 				Items:        allItems,
-				SharedWith: []string{},
+				SharedWith:   []string{},
 			}
 		} else {
 			val.Items = append(val.Items, allItems...)

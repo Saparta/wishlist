@@ -25,12 +25,12 @@ func (w *WishlistService) ModifyWishlistItem(ctx context.Context, request *pb.Mo
 	WITH authorized_users AS (
     SELECT 
         i.id AS item_id,
-        w.id AS wishlist_id
+        i.wishlist_id
     FROM items i
-    JOIN wishlists w ON i.wishlist_id = w.id
-    LEFT JOIN shared s ON w.id = s.wishlist_id
+    JOIN shared s ON i.wishlist_id = s.wishlist_id
     WHERE i.id = $1
-      AND (w.user_id = $2 OR (s.shared_with = $2 AND s.can_edit = TRUE))
+      AND s.user_id = $2
+      AND (s.can_edit = TRUE OR s.is_owner = TRUE)
 	),
 	updated_items AS (
     UPDATE items
@@ -39,22 +39,15 @@ func (w *WishlistService) ModifyWishlistItem(ctx context.Context, request *pb.Mo
         url = COALESCE($4, url),
         price = COALESCE($5, price)
     WHERE id IN (SELECT item_id FROM authorized_users)
-    RETURNING wishlist_id
+    RETURNING id AS item_id, wishlist_id, name, url, price, is_gifted, gifted_by, created_at
 	),
 	update_shared AS (
     UPDATE shared
     SET last_modified = CURRENT_TIMESTAMP
     WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
-    AND shared_with = $2
-	),
-	update_wishlist AS (
-		UPDATE wishlists
-		SET last_modified = CURRENT_TIMESTAMP
-		WHERE id in (SELECT wishlist_id FROM authorized_users)
-		AND user_id = $2
+    AND user_id = $2
 	)
-	SELECT * FROM updated_items;
-`,
+	SELECT * FROM updated_items;`,
 		request.Id, request.UserId, request.Name, request.Url, request.Price)
 
 	if err != nil {
