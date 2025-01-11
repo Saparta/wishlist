@@ -30,9 +30,9 @@ func (W *WishlistService) ModifyWishlist(ctx context.Context, request *pb.Modify
 	updated_wishlist AS (
     UPDATE wishlists
     SET
-        title = $3,
-        description = $4,
-        is_public = $5,
+        title = COALESCE($3, title),
+        description = COALESCE($4, description),
+        is_public = COALESCE($5, is_public),
 				last_modified = 
 				CASE
         	WHEN user_id = $2 THEN CURRENT_TIMESTAMP

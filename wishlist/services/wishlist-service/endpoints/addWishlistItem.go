@@ -26,11 +26,11 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
     wishlists w
     LEFT JOIN shared s ON w.id = s.wishlist_id
     WHERE w.id = $1
-      AND (w.user_id = $7 OR (s.shared_with = $7 AND s.can_edit = TRUE))
+      AND (w.user_id = $5 OR (s.shared_with = $5 AND s.can_edit = TRUE))
 	),
 	updated_items AS (
-		INSERT INTO items (wishlist_id, name, url, price, is_gifted, gifted_by)
-		SELECT $1, $2, $3, $4, $5, $6
+		INSERT INTO items (wishlist_id, name, url, price)
+		SELECT $1, $2, $3, $4
 		WHERE EXISTS (
     	SELECT 1 FROM authorized_users
 		)
@@ -40,17 +40,16 @@ func (w *WishlistService) AddWishlistItem(ctx context.Context, request *pb.AddWi
     UPDATE shared
     SET last_modified = CURRENT_TIMESTAMP
     WHERE wishlist_id IN (SELECT wishlist_id FROM authorized_users)
-    AND shared_with = $7
+    AND shared_with = $5
 	),
 	update_wishlist AS (
 		UPDATE wishlists
 		SET last_modified = CURRENT_TIMESTAMP
 		WHERE id in (SELECT wishlist_id FROM authorized_users)
-		AND user_id = $7
+		AND user_id = $5
 	)
 	SELECT * FROM updated_items;
-	`, request.WishlistId, request.Name, request.Url, request.Price,
-		request.IsGifted, request.GiftedBy, request.UserId)
+	`, request.WishlistId, request.Name, request.Url, request.Price, request.UserId)
 	if err != nil {
 		log.Print("query failure")
 		return nil, status.Error(codes.Internal, err.Error())

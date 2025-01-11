@@ -16,7 +16,7 @@ service WishlistService {
 
   rpc ClearWishlistItems(ClearWishlistItemsRequest) returns (ClearWishlistItemsResponse);
 
-  rpc GetUserWishlist(GetUserWishlistRequest) returns (GetUserWishlistResponse);
+  rpc GetWishlist(GetWishlistRequest) returns (GetWishlistResponse);
 
   rpc GetAllUserWishlists(GetAllUserWishlistsRequest) returns (GetAllUserWishlistsResponse);
 
@@ -32,6 +32,8 @@ service WishlistService {
 
   rpc DeleteWishlistItem(DeleteWishlistItemRequest) returns (DeleteWishlistItemResponse);
 }
+
+// All request values should be non-null unless specified otherwise
 
 message ShareWishlistRequest{
   optional string userId = 1;
@@ -62,10 +64,11 @@ message ModifyWishlistItemRequest {
   optional string id = 1; // Needed to determine wishlist and access rights
   optional string wishlistId = 9; // Needed to determine wishlist and access rights
   optional string userId = 2; // Needed to determine wishlist and access rights
-  optional string name = 3; // Editable Fields below
+  // Editable Fields below, null indicates no change
+  optional string name = 3;
   optional string url = 4;
   optional float price = 5;
-  // null = no change, False = mark ungifted, True = mark gifted
+  // False = mark ungifted, True = mark gifted
   optional bool giftedStatus = 6;
 }
 
@@ -77,7 +80,8 @@ message ModifyWishlistItemResponse {
 message ModifyWishlistRequest {
   optional string id = 1; // Needed to determine wishlist and access rights
   optional string userId = 2; // Needed to determine wishlist and access rights
-  optional string title = 3; // Editable fields below
+  // Editable fields below, null indicates no change
+  optional string title = 3;
   optional string description = 4;
   optional bool isPublic = 5;
 }
@@ -111,12 +115,13 @@ message GetAllUserWishlistsResponse {
   repeated Wishlist wishlists = 1;
 }
 
-message GetUserWishlistRequest {
+message GetWishlistRequest {
   optional string userId = 1;
   optional string wishlistId = 2;
+  optional bool isOwnWishlist = 3;
 }
 
-message GetUserWishlistResponse {
+message GetWishlistResponse {
   optional Wishlist wishlist = 1;
 }
 
@@ -151,8 +156,6 @@ message AddWishlistItemRequest {
   optional string name = 3;
   optional string url = 4;
   optional float price = 5;
-  optional bool isGifted = 6;
-  optional string giftedBy = 7;
 }
 
 message AddWishlistItemResponse {

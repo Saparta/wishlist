@@ -35,9 +35,9 @@ func (w *WishlistService) ModifyWishlistItem(ctx context.Context, request *pb.Mo
 	updated_items AS (
     UPDATE items
     SET
-        name = $3,
-        url = $4,
-        price = $5
+        name = COALESCE($3, name),
+        url = COALESCE($4, url),
+        price = COALESCE($5, price)
     WHERE id IN (SELECT item_id FROM authorized_users)
     RETURNING wishlist_id
 	),
