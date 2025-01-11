@@ -35,8 +35,6 @@ func MakeAddWishlistItem(ctx *gin.Context, client pb.WishlistServiceClient) {
 			Name:       &newItem.Name,
 			Url:        &newItem.Url,
 			Price:      &newItem.Price,
-			IsGifted:   &newItem.IsGifted,
-			GiftedBy:   &newItem.GiftedBy,
 		})
 
 	// Handle errors from the gRPC call
