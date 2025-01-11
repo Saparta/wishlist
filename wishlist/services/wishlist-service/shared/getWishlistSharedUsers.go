@@ -44,7 +44,7 @@ func BatchGetWishlistsSharedUsers(ctx context.Context, wishlistIds []string, use
 	}
 
 	rows, err := dbPool.Query(ctx,
-		"SELECT wishlist_id, shared_with FROM shared WHERE wishlist_id = ANY($1) AND user_id <> $2",
+		"SELECT wishlist_id, user_id FROM shared WHERE wishlist_id = ANY($1) AND user_id <> $2",
 		wishlistIds, userId)
 	if err != nil {
 		errChannel <- status.Errorf(codes.Internal, "Failed to query database: %s", err.Error())
