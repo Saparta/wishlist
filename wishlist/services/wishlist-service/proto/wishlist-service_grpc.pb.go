@@ -19,17 +19,18 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	WishlistService_CreateWishlist_FullMethodName             = "/proto.WishlistService/CreateWishlist"
-	WishlistService_AddWishlistItem_FullMethodName            = "/proto.WishlistService/AddWishlistItem"
-	WishlistService_ClearWishlistItems_FullMethodName         = "/proto.WishlistService/ClearWishlistItems"
-	WishlistService_GetWishlist_FullMethodName                = "/proto.WishlistService/GetWishlist"
-	WishlistService_GetAllUserWishlists_FullMethodName        = "/proto.WishlistService/GetAllUserWishlists"
-	WishlistService_GetWishlistsSharedWithUser_FullMethodName = "/proto.WishlistService/GetWishlistsSharedWithUser"
-	WishlistService_ModifyWishlist_FullMethodName             = "/proto.WishlistService/ModifyWishlist"
-	WishlistService_ModifyWishlistItem_FullMethodName         = "/proto.WishlistService/ModifyWishlistItem"
-	WishlistService_ShareWishlist_FullMethodName              = "/proto.WishlistService/ShareWishlist"
-	WishlistService_DeleteWishlist_FullMethodName             = "/proto.WishlistService/DeleteWishlist"
-	WishlistService_DeleteWishlistItem_FullMethodName         = "/proto.WishlistService/DeleteWishlistItem"
+	WishlistService_CreateWishlist_FullMethodName               = "/proto.WishlistService/CreateWishlist"
+	WishlistService_AddWishlistItem_FullMethodName              = "/proto.WishlistService/AddWishlistItem"
+	WishlistService_ClearWishlistItems_FullMethodName           = "/proto.WishlistService/ClearWishlistItems"
+	WishlistService_GetWishlist_FullMethodName                  = "/proto.WishlistService/GetWishlist"
+	WishlistService_GetAllUserWishlists_FullMethodName          = "/proto.WishlistService/GetAllUserWishlists"
+	WishlistService_GetWishlistsSharedWithUser_FullMethodName   = "/proto.WishlistService/GetWishlistsSharedWithUser"
+	WishlistService_ModifyWishlist_FullMethodName               = "/proto.WishlistService/ModifyWishlist"
+	WishlistService_ModifyWishlistItem_FullMethodName           = "/proto.WishlistService/ModifyWishlistItem"
+	WishlistService_ShareWishlist_FullMethodName                = "/proto.WishlistService/ShareWishlist"
+	WishlistService_RemoveUserFromSharedWishlist_FullMethodName = "/proto.WishlistService/RemoveUserFromSharedWishlist"
+	WishlistService_DeleteWishlist_FullMethodName               = "/proto.WishlistService/DeleteWishlist"
+	WishlistService_DeleteWishlistItem_FullMethodName           = "/proto.WishlistService/DeleteWishlistItem"
 )
 
 // WishlistServiceClient is the client API for WishlistService service.
@@ -45,6 +46,7 @@ type WishlistServiceClient interface {
 	ModifyWishlist(ctx context.Context, in *ModifyWishlistRequest, opts ...grpc.CallOption) (*ModifyWishlistResponse, error)
 	ModifyWishlistItem(ctx context.Context, in *ModifyWishlistItemRequest, opts ...grpc.CallOption) (*ModifyWishlistItemResponse, error)
 	ShareWishlist(ctx context.Context, in *ShareWishlistRequest, opts ...grpc.CallOption) (*ShareWishlistResponse, error)
+	RemoveUserFromSharedWishlist(ctx context.Context, in *RemoveUserFromSharedWishlistRequest, opts ...grpc.CallOption) (*RemoveUserFromSharedWishlistResponse, error)
 	DeleteWishlist(ctx context.Context, in *DeleteWishlistRequest, opts ...grpc.CallOption) (*DeleteWishlistResponse, error)
 	DeleteWishlistItem(ctx context.Context, in *DeleteWishlistItemRequest, opts ...grpc.CallOption) (*DeleteWishlistItemResponse, error)
 }
@@ -147,6 +149,16 @@ func (c *wishlistServiceClient) ShareWishlist(ctx context.Context, in *ShareWish
 	return out, nil
 }
 
+func (c *wishlistServiceClient) RemoveUserFromSharedWishlist(ctx context.Context, in *RemoveUserFromSharedWishlistRequest, opts ...grpc.CallOption) (*RemoveUserFromSharedWishlistResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RemoveUserFromSharedWishlistResponse)
+	err := c.cc.Invoke(ctx, WishlistService_RemoveUserFromSharedWishlist_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *wishlistServiceClient) DeleteWishlist(ctx context.Context, in *DeleteWishlistRequest, opts ...grpc.CallOption) (*DeleteWishlistResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteWishlistResponse)
@@ -180,6 +192,7 @@ type WishlistServiceServer interface {
 	ModifyWishlist(context.Context, *ModifyWishlistRequest) (*ModifyWishlistResponse, error)
 	ModifyWishlistItem(context.Context, *ModifyWishlistItemRequest) (*ModifyWishlistItemResponse, error)
 	ShareWishlist(context.Context, *ShareWishlistRequest) (*ShareWishlistResponse, error)
+	RemoveUserFromSharedWishlist(context.Context, *RemoveUserFromSharedWishlistRequest) (*RemoveUserFromSharedWishlistResponse, error)
 	DeleteWishlist(context.Context, *DeleteWishlistRequest) (*DeleteWishlistResponse, error)
 	DeleteWishlistItem(context.Context, *DeleteWishlistItemRequest) (*DeleteWishlistItemResponse, error)
 	mustEmbedUnimplementedWishlistServiceServer()
@@ -218,6 +231,9 @@ func (UnimplementedWishlistServiceServer) ModifyWishlistItem(context.Context, *M
 }
 func (UnimplementedWishlistServiceServer) ShareWishlist(context.Context, *ShareWishlistRequest) (*ShareWishlistResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ShareWishlist not implemented")
+}
+func (UnimplementedWishlistServiceServer) RemoveUserFromSharedWishlist(context.Context, *RemoveUserFromSharedWishlistRequest) (*RemoveUserFromSharedWishlistResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveUserFromSharedWishlist not implemented")
 }
 func (UnimplementedWishlistServiceServer) DeleteWishlist(context.Context, *DeleteWishlistRequest) (*DeleteWishlistResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteWishlist not implemented")
@@ -408,6 +424,24 @@ func _WishlistService_ShareWishlist_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WishlistService_RemoveUserFromSharedWishlist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveUserFromSharedWishlistRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WishlistServiceServer).RemoveUserFromSharedWishlist(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WishlistService_RemoveUserFromSharedWishlist_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WishlistServiceServer).RemoveUserFromSharedWishlist(ctx, req.(*RemoveUserFromSharedWishlistRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _WishlistService_DeleteWishlist_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteWishlistRequest)
 	if err := dec(in); err != nil {
@@ -486,6 +520,10 @@ var WishlistService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ShareWishlist",
 			Handler:    _WishlistService_ShareWishlist_Handler,
+		},
+		{
+			MethodName: "RemoveUserFromSharedWishlist",
+			Handler:    _WishlistService_RemoveUserFromSharedWishlist_Handler,
 		},
 		{
 			MethodName: "DeleteWishlist",
