@@ -10,6 +10,7 @@ import {
   Wishlist,
 } from "../mocks/mockData";
 import WishlistModal from "./wishlistModal";
+import { MdOutlineAdd } from "react-icons/md";
 
 const Home: React.FC = () => {
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
@@ -21,6 +22,10 @@ const Home: React.FC = () => {
 
   const handleLogout = () => {
     window.location.href = "/";
+  };
+
+  const handlenewlist = () => {
+    window.location.href = "/addwish";
   };
 
   const handleUserClick = () => {
@@ -116,22 +121,30 @@ const Home: React.FC = () => {
       <main className="main-content">
         <div className="tabs-system">
           <div className="parent-tabs">
-            <button
-              className={`tab-button ${
-                activeTab === "my-wishlists" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("my-wishlists")}
-            >
-              My Wishlists
-            </button>
-            <button
-              className={`tab-button ${
-                activeTab === "shared-wishlists" ? "active" : ""
-              }`}
-              onClick={() => setActiveTab("shared-wishlists")}
-            >
-              Shared Wishlists
-            </button>
+            <div className="left-ptabs">
+              <button
+                className={`tab-button ${
+                  activeTab === "my-wishlists" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("my-wishlists")}
+              >
+                My Wishlists
+              </button>
+              <button
+                className={`tab-button ${
+                  activeTab === "shared-wishlists" ? "active" : ""
+                }`}
+                onClick={() => setActiveTab("shared-wishlists")}
+              >
+                Shared Wishlists
+              </button>
+            </div>
+
+            <div className="right-ptabs">
+              <button className="add-list" onClick={handlenewlist}>
+                <MdOutlineAdd />
+              </button>
+            </div>
           </div>
 
           {activeTab === "my-wishlists" && renderWishlistCards(mockWishlists)}

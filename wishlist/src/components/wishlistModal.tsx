@@ -1,6 +1,7 @@
 import React from "react";
 import { Wishlist } from "../mocks/mockData";
 import { RiCloseFill } from "react-icons/ri";
+import { CgTrash } from "react-icons/cg";
 
 interface WishlistModalProps {
   wishlist: Wishlist | null;
@@ -15,11 +16,21 @@ const WishlistModal: React.FC<WishlistModalProps> = ({ wishlist, onClose }) => {
       <div className="wishlist-modal">
         <div className="wishlist-modal-header">
           <div className="close-button"></div>
-          <h2>{wishlist.title}</h2>
+          <div className="left-side-modal">
+            <h2>{wishlist.title}</h2>
+          </div>
 
-          <button onClick={onClose} className="close-button">
-            <RiCloseFill />
-          </button>
+          <div className="right-side-modal">
+            <button onClick={onClose} className="trash-button">
+              <CgTrash />
+            </button>
+
+            <button onClick={onClose} className="close-button">
+              <RiCloseFill />
+            </button>
+          </div>
+
+          {/* Edit trash Icon to delete wish list with new function */}
         </div>
         <p>{wishlist.description}</p>
         <ul>

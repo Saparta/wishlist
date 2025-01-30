@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: url('/public/cool-background.svg') no-repeat center center fixed;
+  background: url("/public/cool-background.svg") no-repeat center center fixed;
   background-size: cover;
   color: white;
   /* Use the global font */
@@ -34,6 +34,14 @@
 
 .logo-container {
   margin-bottom: 20px;
+}
+
+.logo-container-land {
+  margin-bottom: 20px;
+}
+.logo-container-land:hover {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
 }
 
 .logo {

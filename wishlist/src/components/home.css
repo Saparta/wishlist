@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Michroma&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Michroma&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap');
-
+@import url("https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Michroma&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Michroma&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap");
 
 /* Full page */
 html,
@@ -11,7 +10,7 @@ html,
 }
 
 .footer {
-  background-color: #492C1D;
+  background-color: #492c1d;
   padding: 10px;
   text-align: center;
   margin-bottom: 0;
@@ -23,10 +22,9 @@ html,
   font-family: "Nunito Sans", serif;
   background-color: #f9f9f9;
   /* url(/public/home-background.svg) */
-  background: #EBEBEB center content-box;
+  background: #ebebeb center content-box;
   background-position-x: rotateX(180deg);
   background-size: 100% 100%;
-
 }
 
 /* Header with user and settings icons */
@@ -90,9 +88,24 @@ html,
   justify-content: center;
   margin-bottom: 15px;
   margin-top: 30px;
-
 }
 
+.left-ptabs {
+  margin-right: auto;
+}
+.right-ptabs {
+  gap: 10px;
+  margin-right: 40px;
+}
+.add-list {
+  transform: scale(3.5);
+  color: #333;
+}
+
+.add-list:hover {
+  color: green;
+  animation: forwards linear 2s infinite alternate;
+}
 .wishlist-logo {
   top: 20px;
   left: 48%;
@@ -105,23 +118,19 @@ html,
 }
 
 .title {
-  font-family: 'Poppins', sans-serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .title-header {
   font-size: 2rem;
   font-weight: bold;
   font-family: "Michroma", serif;
-
-
-
 }
 
 /* Body stuff */
 .main-content {
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   min-height: 100vh;
-
 }
 
 .tab-button {
@@ -166,7 +175,7 @@ html,
 }
 
 .child-tabs {
-  display: none
+  display: none;
 }
 
 .tab-button {
@@ -181,7 +190,7 @@ html,
 }
 
 .tab-button.active {
-  background-color: #492C1D;
+  background-color: #492c1d;
   color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
@@ -222,7 +231,6 @@ html,
 
 .wishlist-card ul {
   padding-left: 0;
-  ;
   list-style-type: none;
   margin-bottom: 10px;
 }
