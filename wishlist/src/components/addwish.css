@@ -27,6 +27,23 @@ html,
   padding-bottom: 20px;
 }
 
+.remove-item-button button :hover {
+  color: red;
+}
+
+.remove-item-button button {
+  color: #666;
+  display: flex;
+}
+
+.remove-item-button :hover {
+  color: red;
+}
+.remove-item-button {
+  color: #666;
+  display: flex;
+}
+
 .add-item-button button {
   margin-left: 0px !important;
 }
