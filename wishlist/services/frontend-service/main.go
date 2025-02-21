@@ -54,6 +54,8 @@ func main() {
 	r.POST("/wishlist", func(ctx *gin.Context) { endpoints.MakeCreateWishlist(ctx, client) })
 	r.POST("/wishlist/item", func(ctx *gin.Context) { endpoints.MakeAddWishlistItem(ctx, client) })
 	r.GET("/wishlist/:userId", func(ctx *gin.Context) { endpoints.MakeGetAllUserWishlists(ctx, client) })
+	r.POST("/wishlist/:wishlistId/:itemId", func(ctx *gin.Context) { endpoints.MakeModifyWishlistItem(ctx, client) })
+
 
 	r.Run()
 }
