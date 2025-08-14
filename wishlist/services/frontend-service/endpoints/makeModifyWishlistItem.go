@@ -1,7 +1,6 @@
 package endpoints
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/Saparta/wishlist/wishlist/services/frontend-service/models"
@@ -20,20 +19,12 @@ func MakeModifyWishlistItem(ctx *gin.Context, client pb.WishlistServiceClient) {
 		return
 	}
 
-	type modifyItem struct {
-		UserID string `json:"user_id"`
-		models.Item
-		
-	}
-
 	// Parse the request body for the modified wishlist item data
-	var updatedItem modifyItem
+	var updatedItem models.Item
 	if err := ctx.BindJSON(&updatedItem); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body", "details": err.Error()})
 		return
 	}
-
-	log.Printf("mofify item: %v\n", updatedItem)
 
 	// Call the gRPC service to modify the wishlist item
 	resp, err := client.ModifyWishlistItem(ctx.Request.Context(),
